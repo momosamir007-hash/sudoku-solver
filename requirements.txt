@@ -7,4 +7,6 @@ sentencepiece
 protobuf 
 onnxruntime
 pyspellchecker>=0.8.0
+language_tool_python>=2.7.1
+
 
