@@ -2,6 +2,8 @@ import streamlit as st
 import time
 import re
 import difflib
+import subprocess
+import sys
 
 # ==========================================
 # 1. إعدادات الصفحة
@@ -89,6 +91,7 @@ mark.error-word {
     border-radius: 3px;
     padding: 0 4px;
     font-weight: bold;
+    text-decoration: line-through;
 }
 
 mark.corrected-word {
@@ -127,11 +130,18 @@ mark.corrected-word {
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. تحميل نموذج Gramformer الثقيل
+# 3. تحميل نموذج Gramformer الثقيل (مع حل مشكلة spaCy)
 # ==========================================
 @st.cache_resource
 def load_model():
-    # استيراد المكتبة هنا حتى لا تعطل الواجهة عند بدء التشغيل
+    # 1. محاولة تحميل القاموس الإنجليزي، وإذا لم يكن موجوداً نقوم بتنزيله آلياً
+    try:
+        import spacy
+        spacy.load("en_core_web_sm")
+    except OSError:
+        subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+    
+    # 2. الآن يمكننا استيراد Gramformer بأمان
     from gramformer import Gramformer
     import torch
     
@@ -142,12 +152,12 @@ def load_model():
             torch.cuda.manual_seed_all(seed)
     
     set_seed(1212)
-    # تحميل نموذج المصحح النحوي (models=1)
+    # تحميل نموذج المصحح النحوي
     gf = Gramformer(models=1, use_gpu=False)
     return gf
 
 try:
-    with st.spinner("⏳ جاري تحميل نموذج الذكاء الاصطناعي (قد يستغرق وقتاً في المرة الأولى)..."):
+    with st.spinner("⏳ جاري إعداد نموذج الذكاء الاصطناعي (يستغرق وقتاً في أول تشغيل)..."):
         gf = load_model()
         model_status = "✅ الذكاء الاصطناعي جاهز"
 except Exception as e:
@@ -163,7 +173,7 @@ def get_diff_html(original, corrected):
     result = []
     for token in diff:
         if token.startswith('- '):
-            result.append(f'<mark class="error-word" style="text-decoration: line-through;" title="خطأ تم حذفه">{token[2:]}</mark>')
+            result.append(f'<mark class="error-word" title="خطأ تم حذفه">{token[2:]}</mark>')
         elif token.startswith('+ '):
             result.append(f'<mark class="corrected-word" title="تصحيح مضاف">{token[2:]}</mark>')
         elif token.startswith('  '):
@@ -176,14 +186,13 @@ def get_diff_html(original, corrected):
 st.markdown(f"""
 <div class="hero-section">
     <h1 class="hero-title">🤖 مصحح Gramformer العميق</h1>
-    <p class="hero-subtitle">يستخدم نماذج Hugging Face لفهم السياق وتصحيح أعقد الأخطاء</p>
+    <p class="hero-subtitle">يستخدم نماذج Hugging Face لفهم السياق وتصحيح أعقد الأخطاء الإملائية والنحوية</p>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 st.markdown(f'<div class="card-title">✍️ أدخل النص الإنجليزي ({model_status})</div>', unsafe_allow_html=True)
 
-# النص التجريبي المليء بالأخطاء السياقية
 test_text = "Last weak, me and my freind goed to the librery to studdy for our finalle examms."
 
 user_text = st.text_area(
@@ -213,11 +222,11 @@ if check_btn:
     elif gf is None:
         st.error("❌ النموذج غير متوفر بسبب خطأ في التحميل.")
     else:
-        with st.spinner("🧠 يتم تحليل النص وإعادة صياغته..."):
+        with st.spinner("🧠 يتم تحليل النص وإعادة صياغته (قد يستغرق بضع ثوانٍ)..."):
             t0 = time.time()
             
             # تقطيع النص إلى جمل قصيرة لتخفيف الضغط على الـ RAM وزيادة الدقة
-            # نقسم بناءً على علامات الترقيم (. ! ?)
+            # نقسم بناءً على علامات الترقيم
             sentences = re.split(r'(?<=[.!?]) +', user_text.strip())
             
             corrected_sentences = []
@@ -225,7 +234,6 @@ if check_btn:
             for sent in sentences:
                 if sent.strip():
                     # تصحيح كل جملة على حدة باستخدام Gramformer
-                    # max_candidates=1 نطلب منه أفضل اقتراح فقط
                     res = gf.correct(sent, max_candidates=1)
                     corrected_sentences.append(list(res)[0])
             
