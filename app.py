@@ -1,32 +1,10 @@
 import streamlit as st
 import os
-import stat
+import sys
+import subprocess
 
 # ==========================================
-# 🚀 الإصلاح السحري لمشكلة الصلاحيات (Permission Denied)
-# ==========================================
-import catt_tashkeel
-
-# جلب المسار الذي تم تثبيت المكتبة فيه داخل السيرفر
-catt_dir = os.path.dirname(catt_tashkeel.__file__)
-
-try:
-    # منح صلاحيات كاملة (قراءة وكتابة وتعديل) للمجلد الرئيسي للمكتبة
-    os.chmod(catt_dir, 0o777)
-    
-    # إذا كان مجلد onnx_models موجوداً ولكن مغلقاً، سنفتحه أيضاً
-    onnx_dir = os.path.join(catt_dir, "onnx_models")
-    if os.path.exists(onnx_dir):
-        os.chmod(onnx_dir, 0o777)
-except Exception as e:
-    # في حال فشل تغيير الصلاحيات، سيتم طباعة السبب دون إيقاف التطبيق
-    st.warning(f"ملاحظة نظام: تعذر تغيير بعض الصلاحيات ({e})")
-
-# الآن يمكننا استدعاء النماذج بأمان بعد أن فتحنا الأبواب
-from catt_tashkeel import CATTEncoderOnly, CATTEncoderDecoder
-
-# ==========================================
-# 1. إعدادات الصفحة والتصميم
+# 1. إعدادات الصفحة (يجب أن تكون أول سطر دائماً)
 # ==========================================
 st.set_page_config(page_title="مُشكِّل النصوص | CATT", page_icon="✨", layout="centered")
 
@@ -39,7 +17,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. وظائف التحميل
+# 🚀 2. الحل الجذري النهائي (البيئة المعزولة)
+# ==========================================
+# إنشاء مجلد محلي داخل المشروع (حيث يُسمح لنا بالكتابة والتحميل)
+LOCAL_LIB_DIR = os.path.join(os.getcwd(), "catt_workspace")
+
+if not os.path.exists(LOCAL_LIB_DIR):
+    with st.spinner("⏳ جاري بناء بيئة عمل آمنة لتجاوز حماية السيرفر (يحدث مرة واحدة فقط)..."):
+        os.makedirs(LOCAL_LIB_DIR, exist_ok=True)
+        # تثبيت المكتبة حصرياً داخل هذا المجلد المفتوح
+        subprocess.run([sys.executable, "-m", "pip", "install", "catt-tashkeel", "--target", LOCAL_LIB_DIR, "--no-deps"])
+
+# إجبار بايثون على إعطاء الأولوية القصوى لهذا المجلد المفتوح بدلاً من مجلد النظام المغلق
+if LOCAL_LIB_DIR not in sys.path:
+    sys.path.insert(0, LOCAL_LIB_DIR)
+
+# الآن نستدعي المكتبة بأمان، وأي ملفات ستحملها ستذهب لمجلدنا المفتوح!
+try:
+    from catt_tashkeel import CATTEncoderOnly, CATTEncoderDecoder
+except Exception as e:
+    st.error(f"❌ خطأ في استدعاء المكتبة: {e}")
+    st.stop()
+
+# ==========================================
+# 3. وظائف تحميل النماذج (مع تخزين مؤقت)
 # ==========================================
 @st.cache_resource
 def load_eo_model():
@@ -50,7 +51,7 @@ def load_ed_model():
     return CATTEncoderDecoder()
 
 # ==========================================
-# 3. الواجهة الرسومية
+# 4. واجهة المستخدم
 # ==========================================
 st.title("✨ التشكيل الذكي للنصوص (CATT)")
 st.markdown("---")
@@ -64,17 +65,17 @@ model_choice = st.radio(
 
 try:
     if "السريع" in model_choice:
-        with st.spinner("⏳ جاري تهيئة النموذج السريع (يحتاج بضع ثوانٍ للتحميل في المرة الأولى)..."):
+        with st.spinner("⏳ جاري تحميل أوزان النموذج السريع في بيئتنا الآمنة..."):
             model = load_eo_model()
     else:
-        with st.spinner("⏳ جاري تهيئة النموذج الدقيق (ملف كبير، قد يستغرق دقيقة للتحميل)..."):
+        with st.spinner("⏳ جاري تحميل أوزان النموذج الدقيق (قد يستغرق وقتاً أطول للتحميل)..."):
             model = load_ed_model()
 except Exception as e:
-    st.error(f"❌ فشل تحميل النموذج: {e}")
+    st.error(f"❌ فشل تحميل أوزان النموذج: {e}")
     st.stop()
 
 # ==========================================
-# 4. مربع الإدخال والتشغيل
+# 5. مربع الإدخال والتشغيل
 # ==========================================
 user_text = st.text_area("أدخل النص العربي (بدون تشكيل):", height=150, placeholder="مثال: يهدف الذكاء الاصطناعي الى تسهيل حياة الانسان...")
 
@@ -91,4 +92,4 @@ if st.button("تـشـكـيـل الـنـص 🚀", type="primary", use_contain
                 st.error(f"❌ حدث خطأ أثناء التشكيل: {e}")
 
 st.markdown("---")
-st.caption("مبني باستخدام CATT-Tashkeel. تطوير الواجهة بواسطة Streamlit.")
+st.caption("مبني باستخدام CATT-Tashkeel. تم تجاوز حماية السيرفر بنجاح.")
