@@ -1,3 +1,8 @@
-streamlit
-torch
-catt-tashkeel
+--extra-index-url https://download.pytorch.org/whl/cpu 
+streamlit>=1.28.0 
+catt-tashkeel 
+torch 
+transformers 
+sentencepiece 
+protobuf 
+onnxruntime
