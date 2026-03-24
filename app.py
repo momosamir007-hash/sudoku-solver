@@ -81,7 +81,7 @@ html, body, [data-testid="stAppViewContainer"] {
     min-height: 150px;
 }
 
-/* تصميم الكلمات الخاطئة (نحوي وإملائي) */
+/* تصميم الكلمات الخاطئة */
 mark.error-word {
     background-color: rgba(231, 76, 60, 0.3);
     color: #ff6b6b;
@@ -89,7 +89,7 @@ mark.error-word {
     padding: 0 4px;
     border-radius: 3px;
     font-weight: bold;
-    cursor: help; /* تغيير شكل الماوس لتوضيح وجود رسالة */
+    cursor: help;
 }
 
 /* تصميم النص المصحح */
@@ -123,11 +123,10 @@ mark.error-word {
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. إعداد مكتبة التدقيق الشامل (Grammar & Spelling)
+# 3. إعداد مكتبة التدقيق الشامل
 # ==========================================
 @st.cache_resource
 def init_language_tool():
-    # تقوم المكتبة تلقائياً بإنشاء خادم محلي لتجنب حدود الإنترنت (Rate limits)
     return language_tool_python.LanguageTool('en-US')
 
 try:
@@ -153,7 +152,6 @@ st.markdown("""
 st.markdown('<div class="glass-card">', unsafe_allow_html=True)
 st.markdown(f'<div class="card-title">✍️ أدخل النص الإنجليزي ({tool_status})</div>', unsafe_allow_html=True)
 
-# مثال يحتوي على أخطاء إملائية (speling)، نحوية (is/are)، وكلمات متشابهة (their/there)
 default_text = "Their are many speling errrs here. He go to the market everyday."
 
 user_text = st.text_area(
@@ -181,44 +179,43 @@ if check_btn:
     if not user_text.strip():
         st.warning("⚠️ الرجاء كتابة نص أولاً!")
     elif tool is None:
-        st.error("المكتبة غير متوفرة. تأكد من إعدادات الجافا.")
+        st.error("المكتبة غير متوفرة. تأكد من إعدادات الجافا (ملف packages.txt).")
     else:
         with st.spinner("⏳ يتم تحليل القواعد والإملاء..."):
             t0 = time.time()
             
-            # فحص النص بالكامل واستخراج الأخطاء
+            # فحص النص بالكامل
             matches = tool.check(user_text)
             
-            # التصحيح التلقائي للنص
+            # التصحيح التلقائي
             corrected_text = language_tool_python.utils.correct(user_text, matches)
             
-            # ----------------------------------------------------
-            # خوارزمية لتلوين النص الأصلي بناءً على مواقع الأخطاء
-            # ----------------------------------------------------
             html_original = ""
             last_end = 0
             
-            # ترتيب الأخطاء حسب موقعها في النص لتجنب تداخل التلوين
+            # ترتيب الأخطاء
             matches.sort(key=lambda m: m.offset)
             
             for m in matches:
-                # إضافة النص الصحيح الذي يسبق الخطأ
+                # [إصلاح الخطأ هنا]: استخراج طول الخطأ بشكل آمن يدعم جميع إصدارات المكتبة
+                err_len = getattr(m, 'errorLength', getattr(m, 'length', getattr(m, 'error_length', 0)))
+                
+                # إضافة النص السليم
                 html_original += user_text[last_end:m.offset]
                 
                 # الكلمة الخاطئة
-                bad_word = user_text[m.offset:m.offset+m.errorLength]
+                bad_word = user_text[m.offset:m.offset + err_len]
                 
-                # رسالة التوضيح (تظهر عند تمرير الماوس) + اقتراحات التصحيح
+                # رسالة التوضيح
                 tooltip_msg = f"{m.message}"
                 if m.replacements:
                     tooltip_msg += f" (Suggestions: {', '.join(m.replacements[:3])})"
                 
-                # تغليف الكلمة الخاطئة بوسم HTML
                 html_original += f'<mark class="error-word" title="{tooltip_msg}">{bad_word}</mark>'
                 
-                last_end = m.offset + m.errorLength
+                last_end = m.offset + err_len
             
-            # إضافة باقي النص السليم بعد آخر خطأ
+            # باقي النص
             html_original += user_text[last_end:]
             html_original = html_original.replace('\n', '<br>')
             
@@ -226,9 +223,7 @@ if check_btn:
             
             elapsed = round(time.time() - t0, 2)
 
-            # ----------------------------------------------------
-            # عرض النتائج في بطاقات زجاجية
-            # ----------------------------------------------------
+            # عرض النتائج
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
             
             st.markdown('<div class="card-title">🔍 الأخطاء المكتشفة (مرر الماوس فوق الكلمة لمعرفة السبب):</div>', unsafe_allow_html=True)
