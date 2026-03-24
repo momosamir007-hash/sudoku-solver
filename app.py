@@ -1,20 +1,19 @@
 import streamlit as st
-import re
 import time
-from spellchecker import SpellChecker
+import language_tool_python
 
 # ==========================================
 # 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
-    page_title="المصحح الإملائي الذكي",
-    page_icon="📝",
+    page_title="المصحح اللغوي والنحوي الشامل",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 # ==========================================
-# 2. الواجهة المخصصة (CSS الاحترافي المُنقّح)
+# 2. الواجهة المخصصة (CSS)
 # ==========================================
 st.markdown("""
 <style>
@@ -28,7 +27,6 @@ st.markdown("""
     --text-secondary: #b0b0b0;
     --glass: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-hover: rgba(255, 255, 255, 0.06);
 }
 
 * { font-family: 'Tajawal', sans-serif !important; }
@@ -53,9 +51,8 @@ html, body, [data-testid="stAppViewContainer"] {
     margin-bottom: 1.5rem;
 }
 
-.card-title { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;}
+.card-title { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 1rem; }
 
-/* تعديل مربع النص ليدعم الإنجليزية من اليسار لليمين */
 .stTextArea textarea {
     font-family: monospace !important;
     font-size: 1.2rem !important;
@@ -84,21 +81,21 @@ html, body, [data-testid="stAppViewContainer"] {
     min-height: 150px;
 }
 
+/* تصميم الكلمات الخاطئة (نحوي وإملائي) */
 mark.error-word {
     background-color: rgba(231, 76, 60, 0.3);
     color: #ff6b6b;
-    border-bottom: 2px solid #e74c3c;
+    border-bottom: 2px dashed #e74c3c;
     padding: 0 4px;
     border-radius: 3px;
     font-weight: bold;
+    cursor: help; /* تغيير شكل الماوس لتوضيح وجود رسالة */
 }
 
-mark.corrected-word {
-    background-color: rgba(46, 204, 113, 0.2);
+/* تصميم النص المصحح */
+.corrected-text {
     color: #2ecc71;
-    font-weight: bold;
-    padding: 0 4px;
-    border-radius: 3px;
+    font-weight: 500;
 }
 
 .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
@@ -126,22 +123,27 @@ mark.corrected-word {
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. إعداد مكتبة التدقيق الإملائي
+# 3. إعداد مكتبة التدقيق الشامل (Grammar & Spelling)
 # ==========================================
 @st.cache_resource
-def init_spellchecker():
-    # تعمل أوفلاين وتدعم الإنجليزية افتراضياً
-    return SpellChecker(language='en')
+def init_language_tool():
+    # تقوم المكتبة تلقائياً بإنشاء خادم محلي لتجنب حدود الإنترنت (Rate limits)
+    return language_tool_python.LanguageTool('en-US')
 
-spell = init_spellchecker()
+try:
+    tool = init_language_tool()
+    tool_status = "✅ المكتبة جاهزة"
+except Exception as e:
+    tool = None
+    tool_status = f"❌ حدث خطأ في التهيئة: {e}"
 
 # ==========================================
-# 4. قسم الهيدر (Hero)
+# 4. قسم الهيدر
 # ==========================================
 st.markdown("""
 <div class="hero-section">
-    <h1 class="hero-title">📝 المصحح الإملائي الذكي</h1>
-    <p class="hero-subtitle">اكتشف الأخطاء الإملائية وصححها فوراً وبدون اتصال بالإنترنت</p>
+    <h1 class="hero-title">✨ المصحح النحوي والإملائي الشامل</h1>
+    <p class="hero-subtitle">يكتشف الأخطاء الإملائية، القواعد النحوية، والكلمات المتشابهة بدقة عالية</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -149,20 +151,21 @@ st.markdown("""
 # 5. منطقة العمل
 # ==========================================
 st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-st.markdown('<div class="card-title">✍️ أدخل النص (باللغة الإنجليزية)</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="card-title">✍️ أدخل النص الإنجليزي ({tool_status})</div>', unsafe_allow_html=True)
 
-# مربع الإدخال
+# مثال يحتوي على أخطاء إملائية (speling)، نحوية (is/are)، وكلمات متشابهة (their/there)
+default_text = "Their are many speling errrs here. He go to the market everyday."
+
 user_text = st.text_area(
     label="النص",
-    value="Type some text with speling errrs here to test the aplication...",
+    value=default_text,
     height=150,
     label_visibility="collapsed"
 )
 
-# الأزرار
 col1, col2 = st.columns([4, 1])
 with col1:
-    check_btn = st.button("🔍 فحص وتصحيح الأخطاء", type="primary", use_container_width=True)
+    check_btn = st.button("🔍 فحص وتصحيح النص", type="primary", use_container_width=True)
 with col2:
     clear_btn = st.button("🗑️ مسح", use_container_width=True)
 
@@ -177,62 +180,79 @@ st.markdown('</div>', unsafe_allow_html=True)
 if check_btn:
     if not user_text.strip():
         st.warning("⚠️ الرجاء كتابة نص أولاً!")
+    elif tool is None:
+        st.error("المكتبة غير متوفرة. تأكد من إعدادات الجافا.")
     else:
-        with st.spinner("⏳ جاري فحص النص..."):
+        with st.spinner("⏳ يتم تحليل القواعد والإملاء..."):
             t0 = time.time()
             
-            # استخراج الكلمات
-            words_only = [m.group(0) for m in re.finditer(r'\b[A-Za-z]+\b', user_text)]
-            misspelled = spell.unknown(words_only)
+            # فحص النص بالكامل واستخراج الأخطاء
+            matches = tool.check(user_text)
             
-            errors_count = len(misspelled)
+            # التصحيح التلقائي للنص
+            corrected_text = language_tool_python.utils.correct(user_text, matches)
             
-            # دوال فرعية للتلوين والتصحيح (HTML)
-            def highlight_errors(match):
-                word = match.group(0)
-                if word.lower() in misspelled:
-                    return f'<mark class="error-word">{word}</mark>'
-                return word
-
-            def apply_corrections(match):
-                word = match.group(0)
-                if word.lower() in misspelled:
-                    corr = spell.correction(word)
-                    if corr:
-                        return f'<mark class="corrected-word">{corr}</mark>'
-                return word
-
-            # توليد النصوص
-            html_original = re.sub(r'\b[A-Za-z]+\b', highlight_errors, user_text).replace('\n', '<br>')
-            html_corrected = re.sub(r'\b[A-Za-z]+\b', apply_corrections, user_text).replace('\n', '<br>')
+            # ----------------------------------------------------
+            # خوارزمية لتلوين النص الأصلي بناءً على مواقع الأخطاء
+            # ----------------------------------------------------
+            html_original = ""
+            last_end = 0
             
-            elapsed = round(time.time() - t0, 3)
+            # ترتيب الأخطاء حسب موقعها في النص لتجنب تداخل التلوين
+            matches.sort(key=lambda m: m.offset)
+            
+            for m in matches:
+                # إضافة النص الصحيح الذي يسبق الخطأ
+                html_original += user_text[last_end:m.offset]
+                
+                # الكلمة الخاطئة
+                bad_word = user_text[m.offset:m.offset+m.errorLength]
+                
+                # رسالة التوضيح (تظهر عند تمرير الماوس) + اقتراحات التصحيح
+                tooltip_msg = f"{m.message}"
+                if m.replacements:
+                    tooltip_msg += f" (Suggestions: {', '.join(m.replacements[:3])})"
+                
+                # تغليف الكلمة الخاطئة بوسم HTML
+                html_original += f'<mark class="error-word" title="{tooltip_msg}">{bad_word}</mark>'
+                
+                last_end = m.offset + m.errorLength
+            
+            # إضافة باقي النص السليم بعد آخر خطأ
+            html_original += user_text[last_end:]
+            html_original = html_original.replace('\n', '<br>')
+            
+            corrected_text_html = corrected_text.replace('\n', '<br>')
+            
+            elapsed = round(time.time() - t0, 2)
 
+            # ----------------------------------------------------
             # عرض النتائج في بطاقات زجاجية
+            # ----------------------------------------------------
             st.markdown('<div class="glass-card">', unsafe_allow_html=True)
             
-            st.markdown('<div class="card-title">❌ الأخطاء المكتشفة:</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-title">🔍 الأخطاء المكتشفة (مرر الماوس فوق الكلمة لمعرفة السبب):</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="output-display">{html_original}</div>', unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
             
-            st.markdown('<div class="card-title">✅ النص المصحح:</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="output-display">{html_corrected}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="card-title">✅ النص بعد التصحيح:</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="output-display corrected-text">{corrected_text_html}</div>', unsafe_allow_html=True)
 
             # الإحصائيات
             st.markdown(f"""
             <div class="stats-row">
                 <div class="stat-card">
-                    <div class="stat-value">{len(words_only)}</div>
+                    <div class="stat-value">{len(user_text.split())}</div>
                     <div class="stat-label">إجمالي الكلمات</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" style="color: #ff6b6b;">{errors_count}</div>
-                    <div class="stat-label">أخطاء إملائية</div>
+                    <div class="stat-value" style="color: #ff6b6b;">{len(matches)}</div>
+                    <div class="stat-label">أخطاء إملائية/نحوية</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" style="color: #2ecc71;">{elapsed}s</div>
-                    <div class="stat-label">وقت الفحص</div>
+                    <div class="stat-label">وقت التحليل</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
