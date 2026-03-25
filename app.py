@@ -1706,13 +1706,13 @@ else:
             openrouter_model_id = st.selectbox(
                 "اختر النموذج المجاني:",
                 [
-                    "deepseek/deepseek-r1:free",
-                    "qwen/qwen3-8b:free",
-                    "meta-llama/llama-3.3-70b-instruct:free",
-                    "meta-llama/llama-4-maverick:free",
-                    "meta-llama/llama-4-scout:free",
+                    "nousresearch/hermes-3-llama-3.1-405b:free",
+                    "qwen/qwen3-next-80b-a3b-instruct:free",
+                    "google/gemma-3-27b-it:free",
+                    "openai/gpt-oss-120b:free",
+                    "mistralai/mistral-small-3.1-24b-instruct:free",
                 ],
-                help="جرّب DeepSeek R1 أو Qwen3-8B أولاً — Llama دائماً مقيد السرعة في النسخة المجانية"
+                help="Hermes 405B و Qwen3 80B الخيارات الأقوى والأذكى للغة العربية"
             )
             if not openrouter_status:
                 st.error("❌ مفتاح OPENROUTER_API_KEY غير متوفر في st.secrets.")
