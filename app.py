@@ -1706,13 +1706,13 @@ else:
             openrouter_model_id = st.selectbox(
                 "اختر النموذج المجاني:",
                 [
+                    "deepseek/deepseek-r1:free",
                     "qwen/qwen3-8b:free",
                     "meta-llama/llama-3.3-70b-instruct:free",
-                    "deepseek/deepseek-r1:free",
                     "meta-llama/llama-4-maverick:free",
                     "meta-llama/llama-4-scout:free",
                 ],
-                help="llama-3.3-70B و qwen3-8B الأقوى في العربية حالياً"
+                help="جرّب DeepSeek R1 أو Qwen3-8B أولاً — Llama دائماً مقيد السرعة في النسخة المجانية"
             )
             if not openrouter_status:
                 st.error("❌ مفتاح OPENROUTER_API_KEY غير متوفر في st.secrets.")
@@ -1826,7 +1826,16 @@ if run_btn:
                             result_text = response.choices[0].message.content
                             used_model = model_label
                         except Exception as e:
-                            st.error(f"❌ خطأ في اتصال OpenRouter: {e}")
+                            err_str = str(e)
+                            if "429" in err_str:
+                                st.error(
+                                    f"❌ النموذج `{openrouter_model_id}` مقيد السرعة حالياً (rate-limited). "
+                                    f"جرّب نموذجاً آخر من القائمة أو انتظر دقيقة وأعد المحاولة."
+                                )
+                            elif "404" in err_str:
+                                st.error(f"❌ النموذج `{openrouter_model_id}` غير متوفر على OpenRouter. جرّب نموذجاً آخر.")
+                            else:
+                                st.error(f"❌ خطأ في اتصال OpenRouter: {e}")
                 
                 elif "Gemini" in academic_model_choice and gemini_status:
                     with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر Gemini 2.5..."):
