@@ -1804,7 +1804,7 @@ if run_btn:
                     with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر Gemini 2.5 Pro..."):
                         try:
                             model_g = genai.GenerativeModel(
-                                "gemini-2.5-pro",
+                                "gemini-2.5-flash",
                                 system_instruction=ACADEMIC_SYSTEM_PROMPT
                             )
                             response = model_g.generate_content(
