@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. إعدادات المكتبات و API Keys (Groq, OpenAI, Gemini)
+# 2. إعدادات المكتبات و API Keys (Groq, OpenRouter, Gemini)
 # ==========================================
 # تهيئة Groq
 try:
@@ -31,13 +31,17 @@ except Exception:
     groq_client = None
     groq_status = False
 
-# تهيئة OpenAI (ChatGPT)
+# تهيئة OpenRouter (بديل OpenAI بنماذج مجانية)
 try:
-    import openai
-    openai.api_key = st.secrets["OPENAI_API_KEY"]
-    openai_status = True
+    from openai import OpenAI as OpenRouterClient
+    openrouter_client = OpenRouterClient(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=st.secrets["OPENROUTER_API_KEY"],
+    )
+    openrouter_status = True
 except Exception:
-    openai_status = False
+    openrouter_client = None
+    openrouter_status = False
 
 # تهيئة Gemini
 try:
@@ -1557,7 +1561,7 @@ st.markdown("""
 feature_count = len(AI_FEATURES)
 st.markdown(f"""
 <div class="hero-section">
-    <div class="hero-badge"> 🚀 مدعوم بالتوجيه الذكي (CATT Offline, Groq, GPT-4o, Gemini 2.5) </div>
+    <div class="hero-badge"> 🚀 مدعوم بالتوجيه الذكي (CATT Offline, Groq, OpenRouter, Gemini 2.5) </div>
     <h1 class="hero-title">
         <span class="gradient-text">المساعد اللغوي العربي الهجين</span>
     </h1>
@@ -1691,10 +1695,26 @@ else:
     # التوجيه الذكي
     if selected_feature in ACADEMIC_TASKS:
         st.info("🎯 **المسار الأكاديمي الصارم:** هذه المهمة تتطلب دقة رياضية وقواعد صارمة، تم توجيهها للنماذج الكبرى لمنع الهلوسة.")
-        academic_model_choice = st.selectbox("اختر المحرك الأكاديمي:", ["🤖 ChatGPT (GPT-4o)", "✨ Gemini (2.5 Pro)"])
-        
-        if "ChatGPT" in academic_model_choice and not openai_status:
-            st.error("❌ مفتاح OpenAI غير متوفر في st.secrets.")
+        academic_model_choice = st.selectbox(
+            "اختر المحرك الأكاديمي:",
+            ["🤖 OpenRouter (Qwen3-235B)", "✨ Gemini (2.5 Flash)"]
+        )
+
+        # اختيار النموذج المجاني من OpenRouter
+        openrouter_model_id = None
+        if "OpenRouter" in academic_model_choice:
+            openrouter_model_id = st.selectbox(
+                "اختر النموذج المجاني:",
+                [
+                    "qwen/qwen3-235b-a22b:free",
+                    "deepseek/deepseek-chat-v3-0324:free",
+                    "google/gemini-2.0-flash-exp:free",
+                    "meta-llama/llama-4-maverick:free",
+                ],
+                help="Qwen3-235B هو الأقوى في العربية"
+            )
+            if not openrouter_status:
+                st.error("❌ مفتاح OPENROUTER_API_KEY غير متوفر في st.secrets.")
         if "Gemini" in academic_model_choice and not gemini_status:
             st.error("❌ مفتاح Gemini غير متوفر في st.secrets.")
     else:
@@ -1785,23 +1805,30 @@ if run_btn:
             if selected_feature in ACADEMIC_TASKS:
                 task_instruction = f"المهمة المطلوبة: [{selected_feature}]\n\nالنص المُراد تحليله:\n{user_text}"
                 
-                if "ChatGPT" in academic_model_choice and openai_status:
-                    with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر GPT-4o..."):
+                if "OpenRouter" in academic_model_choice and openrouter_status:
+                    model_label = openrouter_model_id.split("/")[1].split(":")[0].upper()
+                    with st.spinner(f"⏳ جاري التحليل الأكاديمي الصارم عبر {model_label}..."):
                         try:
-                            response = openai.chat.completions.create(
-                                model="gpt-4o",
+                            response = openrouter_client.chat.completions.create(
+                                model=openrouter_model_id,
                                 messages=[
                                     {"role": "system", "content": ACADEMIC_SYSTEM_PROMPT},
                                     {"role": "user", "content": task_instruction}
                                 ],
-                                temperature=0.0
+                                temperature=0.0,
+                                max_tokens=4096,
+                                extra_headers={
+                                    "HTTP-Referer": "https://catt-ai.streamlit.app",
+                                    "X-Title": "CATT AI Arabic Assistant",
+                                },
                             )
                             result_text = response.choices[0].message.content
-                            used_model = "GPT-4o"
-                        except Exception as e: st.error(f"❌ خطأ في اتصال OpenAI: {e}")
+                            used_model = model_label
+                        except Exception as e:
+                            st.error(f"❌ خطأ في اتصال OpenRouter: {e}")
                 
                 elif "Gemini" in academic_model_choice and gemini_status:
-                    with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر Gemini 2.5 Pro..."):
+                    with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر Gemini 2.5..."):
                         try:
                             model_g = genai.GenerativeModel(
                                 "gemini-2.5-flash",
@@ -1812,8 +1839,9 @@ if run_btn:
                                 generation_config=genai.types.GenerationConfig(temperature=0.0)
                             )
                             result_text = response.text
-                            used_model = "Gemini 2.5 Pro"
-                        except Exception as e: st.error(f"❌ خطأ في اتصال Gemini: {e}")
+                            used_model = "Gemini 2.5 Flash"
+                        except Exception as e:
+                            st.error(f"❌ خطأ في اتصال Gemini: {e}")
 
             # مسار 2-ب: المهام الإبداعية الصاروخية (Groq)
             else:
@@ -1897,7 +1925,7 @@ st.markdown(f"""
 <div class="site-footer">
     <div class="footer-brand">✨ CATT & AI — المساعد اللغوي الهجين</div>
     <div class="footer-text">
-        توجيه ذكي بين CATT (للتشغيل محلياً)، Groq (للسرعة والإبداع)، و GPT-4o / Gemini 2.5 (للدقة الأكاديمية).<br>
+        توجيه ذكي بين CATT (محلي)، Groq (سرعة)، OpenRouter/Qwen3 (دقة أكاديمية مجانية)، و Gemini 2.5<br>
         الإصدار 4.0 Pro+ Hybrid
     </div>
 </div>
