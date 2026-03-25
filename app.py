@@ -7,6 +7,7 @@ import time
 import json
 from datetime import datetime
 from groq import Groq
+import google.generativeai as genai
 
 # ==========================================
 # 1. إعدادات الصفحة
