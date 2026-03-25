@@ -297,7 +297,8 @@ if check_btn:
                     try:
                         # إرسال طلب لـ Groq لتصحيح النص
                         completion = groq_client.chat.completions.create(
-                            model="llama3-8b-8192", # يمكنك تغيير النموذج إذا أردت
+                            model="llama-3.3-70b-versatile", # النموذج الأحدث والأكثر دقة
+
                             messages=[
                                 {
                                     "role": "system",
