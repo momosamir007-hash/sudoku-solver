@@ -48,7 +48,7 @@ except Exception:
     gemini_status = False
 
 # ==========================================
-# 3. الواجهة المخصصة الكاملة (CSS)
+# 3. الواجهة المخصصة الكاملة (CSS المحتفظ به)
 # ==========================================
 st.markdown("""
 <style>
@@ -95,6 +95,7 @@ html, body, [data-testid="stAppViewContainer"] {
     max-width: 100% !important;
 }
 
+/* إخفاء عناصر Streamlit */
 #MainMenu, footer, header, [data-testid="stHeader"], [data-testid="stToolbar"], [data-testid="stDecoration"] {
     display: none !important;
 }
@@ -116,9 +117,33 @@ html, body, [data-testid="stAppViewContainer"] {
     animation: orbit 20s ease-in-out infinite;
 }
 
-.bg-orb-1 { width: 500px; height: 500px; background: var(--gold); top: -150px; right: -150px; animation-delay: 0s; }
-.bg-orb-2 { width: 400px; height: 400px; background: var(--purple); bottom: -100px; left: -100px; animation-delay: -7s; }
-.bg-orb-3 { width: 300px; height: 300px; background: var(--cyan); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -14s; }
+.bg-orb-1 {
+    width: 500px;
+    height: 500px;
+    background: var(--gold);
+    top: -150px;
+    right: -150px;
+    animation-delay: 0s;
+}
+
+.bg-orb-2 {
+    width: 400px;
+    height: 400px;
+    background: var(--purple);
+    bottom: -100px;
+    left: -100px;
+    animation-delay: -7s;
+}
+
+.bg-orb-3 {
+    width: 300px;
+    height: 300px;
+    background: var(--cyan);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -14s;
+}
 
 .bg-grid {
     position: absolute;
@@ -148,85 +173,584 @@ html, body, [data-testid="stAppViewContainer"] {
     border-bottom: 1px solid var(--glass-border);
 }
 
-.nav-brand { display: flex; align-items: center; gap: 0.8rem; }
-.nav-logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--gold), var(--orange)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(233, 196, 106, 0.3); }
-.nav-title { font-size: 1.2rem; font-weight: 700; color: var(--gold); letter-spacing: -0.5px; }
-.nav-links { display: flex; gap: 2rem; align-items: center; }
-.nav-link { color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.3s; cursor: pointer; }
-.nav-link:hover { color: var(--gold); }
-.nav-badge { background: linear-gradient(135deg, var(--gold), var(--orange)); color: var(--dark-1); padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.85rem; font-weight: 700; }
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.nav-logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 15px rgba(233, 196, 106, 0.3);
+}
+
+.nav-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: -0.5px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    color: var(--gold);
+}
+
+.nav-badge {
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    color: var(--dark-1);
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
 
 /* ══════════════════════════════════ القسم الرئيسي (Hero) ══════════════════════════════════ */
-.hero-section { position: relative; z-index: 1; text-align: center; padding: 4rem 2rem 3rem; }
-.hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(233, 196, 106, 0.1); border: 1px solid rgba(233, 196, 106, 0.2); padding: 0.4rem 1.2rem; border-radius: 50px; font-size: 0.85rem; color: var(--gold); margin-bottom: 1.5rem; }
-.hero-title { font-size: 3.5rem; font-weight: 900; line-height: 1.2; margin-bottom: 1rem; }
-.hero-title .gradient-text { background: linear-gradient(135deg, var(--gold), var(--orange), var(--gold-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-.hero-subtitle { font-size: 1.2rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto 2rem; line-height: 1.8; font-weight: 300; }
-.hero-stats { display: flex; justify-content: center; gap: 3rem; }
-.hero-stat { text-align: center; }
-.hero-stat-value { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
-.hero-stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem; }
+.hero-section {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+}
 
-/* ══════════════════════════════════ منطقة العمل ══════════════════════════════════ */
-.workspace-container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 3rem; }
-.glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; margin-bottom: 1.5rem; transition: all 0.3s ease; }
-.glass-card:hover { border-color: rgba(233, 196, 106, 0.15); background: var(--glass-hover); }
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
-.card-title { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
-.card-title-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--gold), var(--orange)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(233, 196, 106, 0.1);
+    border: 1px solid rgba(233, 196, 106, 0.2);
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 0.8s ease;
+}
 
-/* ══════════════════════════════════ مربعات النص والأزرار ══════════════════════════════════ */
-.stTextArea textarea { font-family: 'Noto Naskh Arabic', 'Amiri', serif !important; font-size: 1.3rem !important; line-height: 2.4 !important; direction: rtl !important; text-align: right !important; background: rgba(0, 0, 0, 0.3) !important; border: 2px solid var(--glass-border) !important; border-radius: 16px !important; padding: 1.5rem !important; color: var(--text-primary) !important; transition: all 0.3s ease !important; resize: none !important; }
-.stTextArea textarea:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.1) !important; background: rgba(0, 0, 0, 0.4) !important; }
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.8s ease;
+}
 
-.output-display { background: linear-gradient(135deg, rgba(233, 196, 106, 0.06), rgba(244, 162, 97, 0.03), rgba(168, 218, 220, 0.03) ); border: 2px solid rgba(233, 196, 106, 0.2); border-radius: 16px; padding: 2rem; direction: rtl; text-align: right; font-family: 'Noto Naskh Arabic', 'Amiri', serif; font-size: 1.4rem; line-height: 2.8; color: var(--gold-light); min-height: 200px; word-wrap: break-word; position: relative; overflow: hidden; }
-.output-display::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--orange), var(--gold)); border-radius: 16px 16px 0 0; }
-.output-empty { color: rgba(255, 255, 255, 0.15); font-family: 'Tajawal', sans-serif; font-size: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; min-height: 200px; }
-.output-empty-icon { font-size: 2.5rem; opacity: 0.3; }
+.hero-title .gradient-text {
+    background: linear-gradient(135deg, var(--gold), var(--orange), var(--gold-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-.stButton > button { font-family: 'Tajawal', sans-serif !important; font-weight: 700 !important; border-radius: 14px !important; padding: 0.8rem 1.5rem !important; font-size: 1.1rem !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; border: none !important; position: relative; overflow: hidden; }
-.stButton > button[kind="primary"] { background: linear-gradient(135deg, var(--gold), var(--orange)) !important; color: var(--dark-1) !important; box-shadow: 0 4px 20px rgba(233, 196, 106, 0.3) !important; }
-.stButton > button[kind="primary"]:hover { transform: translateY(-2px) !important; box-shadow: 0 8px 30px rgba(233, 196, 106, 0.4) !important; }
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    line-height: 1.8;
+    font-weight: 300;
+    animation: fadeInUp 0.8s ease 0.2s both;
+}
 
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0; }
-.stat-card { background: linear-gradient(135deg, rgba(26, 26, 62, 0.8), rgba(13, 13, 43, 0.9) ); border: 1px solid var(--glass-border); border-radius: 18px; padding: 1.5rem; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; }
-.stat-card:hover { transform: translateY(-5px); border-color: rgba(233, 196, 106, 0.3); }
-.stat-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
-.stat-value { font-size: 1.6rem; font-weight: 900; color: var(--gold); display: block; line-height: 1.2; }
-.stat-label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.3rem; font-weight: 500; }
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    animation: fadeInUp 0.8s ease 0.4s both;
+}
 
-.status-pill { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 50px; font-size: 0.9rem; font-weight: 600; }
-.status-ok { background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.25); color: #2ecc71; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ecc71; animation: pulse-dot 2s infinite; }
-@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+.hero-stat {
+    text-align: center;
+}
 
-div[role="radiogroup"] { direction: rtl !important; gap: 0.5rem !important; margin-bottom: 1rem; }
-div[role="radiogroup"] label { background: var(--glass) !important; border: 1px solid var(--glass-border) !important; border-radius: 12px !important; padding: 0.8rem 1.2rem !important; transition: all 0.3s !important; color: var(--text-primary) !important; }
-div[role="radiogroup"] label:hover { border-color: rgba(233, 196, 106, 0.3) !important; background: var(--glass-hover) !important; }
-div[role="radiogroup"] label[data-checked="true"] { border-color: var(--gold) !important; background: rgba(233, 196, 106, 0.1) !important; }
+.hero-stat-value {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+}
 
-.history-item { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem; direction: rtl; text-align: right; transition: all 0.3s; }
-.history-item:hover { border-color: rgba(233, 196, 106, 0.2); }
-.history-feature { color: var(--gold); font-weight: 700; font-size: 0.85rem; }
-.history-time { color: var(--text-secondary); font-size: 0.75rem; float: left; }
-.history-preview { color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.3rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero-stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+}
 
-.live-counter { display: flex; gap: 1.5rem; justify-content: flex-end; direction: rtl; padding: 0.5rem 0; font-size: 0.8rem; color: var(--text-secondary); }
-.live-counter-value { color: var(--gold); font-weight: 700; }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-.stSelectbox > div > div { background: rgba(0, 0, 0, 0.3) !important; border: 1px solid var(--glass-border) !important; border-radius: 12px !important; color: var(--text-primary) !important; direction: rtl !important; }
-.stSelectbox label { color: var(--text-secondary) !important; direction: rtl !important; text-align: right !important; }
-.stExpander { background: var(--glass) !important; border: 1px solid var(--glass-border) !important; border-radius: 16px !important; }
-.stExpander header { color: var(--text-primary) !important; }
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-.site-footer { position: relative; z-index: 1; text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--glass-border); margin-top: 3rem; }
-.footer-brand { font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 0.5rem; }
-.footer-text { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.8; }
+/* ══════════════════════════════════ منطقة العمل الرئيسية ══════════════════════════════════ */
+.workspace-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 3rem;
+}
+
+/* بطاقة زجاجية */
+.glass-card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    border-color: rgba(233, 196, 106, 0.15);
+    background: var(--glass-hover);
+}
+
+/* عنوان البطاقة */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.2rem;
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.card-title-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--gold), var(--orange));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.card-counter {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.05);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+}
+
+/* ══════════════════════════════════ مربعات النص المخصصة ══════════════════════════════════ */
+.stTextArea textarea {
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif !important;
+    font-size: 1.3rem !important;
+    line-height: 2.4 !important;
+    direction: rtl !important;
+    text-align: right !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease !important;
+    resize: none !important;
+}
+
+.stTextArea textarea:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 0 4px rgba(233, 196, 106, 0.1) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.stTextArea textarea::placeholder {
+    color: rgba(255, 255, 255, 0.2) !important;
+    font-family: 'Tajawal', sans-serif !important;
+    font-size: 1rem !important;
+}
+
+/* ══════════════════════════════════ مربع النتيجة ══════════════════════════════════ */
+.output-display {
+    background: linear-gradient(135deg, rgba(233, 196, 106, 0.06), rgba(244, 162, 97, 0.03), rgba(168, 218, 220, 0.03) );
+    border: 2px solid rgba(233, 196, 106, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    direction: rtl;
+    text-align: right;
+    font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+    font-size: 1.4rem;
+    line-height: 2.8;
+    color: var(--gold-light);
+    min-height: 200px;
+    word-wrap: break-word;
+    position: relative;
+    overflow: hidden;
+}
+
+.output-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--orange), var(--gold));
+    border-radius: 16px 16px 0 0;
+}
+
+.output-empty {
+    color: rgba(255, 255, 255, 0.15);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    min-height: 200px;
+}
+
+.output-empty-icon {
+    font-size: 2.5rem;
+    opacity: 0.3;
+}
+
+/* ══════════════════════════════════ الأزرار المخصصة ══════════════════════════════════ */
+.stButton > button {
+    font-family: 'Tajawal', sans-serif !important;
+    font-weight: 700 !important;
+    border-radius: 14px !important;
+    padding: 0.8rem 1.5rem !important;
+    font-size: 1.1rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.stButton > button[kind="primary"] {
+    background: linear-gradient(135deg, var(--gold), var(--orange)) !important;
+    color: var(--dark-1) !important;
+    box-shadow: 0 4px 20px rgba(233, 196, 106, 0.3) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 30px rgba(233, 196, 106, 0.4) !important;
+}
+
+.stButton > button[kind="primary"]:active {
+    transform: translateY(0) !important;
+}
+
+/* ══════════════════════════════════ بطاقات الإحصائيات ══════════════════════════════════ */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(26, 26, 62, 0.8), rgba(13, 13, 43, 0.9) );
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(233, 196, 106, 0.3);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    display: block;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
+/* ══════════════════════════════════ حالة النموذج ══════════════════════════════════ */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.status-ok {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.25);
+    color: #2ecc71;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+}
+
+.status-ok .status-dot {
+    background: #2ecc71;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ══════════════════════════════════ Radio مخصص ══════════════════════════════════ */
+div[role="radiogroup"] {
+    direction: rtl !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1rem;
+}
+
+div[role="radiogroup"] label {
+    background: var(--glass) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    padding: 0.8rem 1.2rem !important;
+    transition: all 0.3s !important;
+    color: var(--text-primary) !important;
+}
+
+div[role="radiogroup"] label:hover {
+    border-color: rgba(233, 196, 106, 0.3) !important;
+    background: var(--glass-hover) !important;
+}
+
+div[role="radiogroup"] label[data-checked="true"] {
+    border-color: var(--gold) !important;
+    background: rgba(233, 196, 106, 0.1) !important;
+}
+
+/* ══════════════════════════════════ الميزات (Features) ══════════════════════════════════ */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.feature-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.feature-card:hover {
+    border-color: rgba(233, 196, 106, 0.2);
+    transform: translateY(-3px);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    display: block;
+}
+
+.feature-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+}
+
+.feature-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* ══════════════════════════════════ سجل العمليات ══════════════════════════════════ */
+.history-item {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    direction: rtl;
+    text-align: right;
+    transition: all 0.3s;
+}
+
+.history-item:hover {
+    border-color: rgba(233, 196, 106, 0.2);
+}
+
+.history-feature {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.history-time {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    float: left;
+}
+
+.history-preview {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════ نصوص تجريبية ══════════════════════════════════ */
+.sample-btn {
+    background: rgba(233, 196, 106, 0.08) !important;
+    border: 1px solid rgba(233, 196, 106, 0.15) !important;
+    border-radius: 10px !important;
+    color: var(--gold) !important;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 1rem !important;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sample-btn:hover {
+    background: rgba(233, 196, 106, 0.15) !important;
+    border-color: rgba(233, 196, 106, 0.3) !important;
+}
+
+/* ══════════════════════════════════ الفوتر ══════════════════════════════════ */
+.site-footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--glass-border);
+    margin-top: 3rem;
+}
+
+.footer-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+}
+
+.footer-text {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.8;
+}
+
+/* ══════════════════════════════════ تحسينات إضافية ══════════════════════════════════ */
+.stSelectbox > div > div {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 12px !important;
+    color: var(--text-primary) !important;
+    direction: rtl !important;
+}
+
+.stSelectbox label {
+    color: var(--text-secondary) !important;
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+.stExpander {
+    background: var(--glass) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 16px !important;
+}
+
+.stExpander header {
+    color: var(--text-primary) !important;
+}
+
+.stDownloadButton > button {
+    background: linear-gradient(135deg, var(--green), #27ae60) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+}
+
+/* مؤشر العداد الحي */
+.live-counter {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: flex-end;
+    direction: rtl;
+    padding: 0.5rem 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.live-counter-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.live-counter-value {
+    color: var(--gold);
+    font-weight: 700;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 4. البرومبت الأكاديمي الصارم (المهام الثلاث)
+# 4. البرومبت الأكاديمي الصارم (للمهام الثلاث)
 # ==========================================
 ACADEMIC_TASKS = ["الإعراب التفاعلي", "مختبر الشعر (العروض)", "التشكيل الذكي"]
 
@@ -250,89 +774,749 @@ ACADEMIC_SYSTEM_PROMPT = """أنت "سيبويه الذكاء الاصطناعي
 
 3. إذا كانت المهمة [التشكيل الآلي]:
 - قم بتشكيل النص المُدخل تشكيلاً كاملاً (بنية الكلمة وأواخرها) بناءً على موقعها الإعرابي الدقيق.
-- [شرط حرج]: إياك أن تغير، تبدل، تضيف، أو تحذف أي كلمة أو حرف من النص الأصلي. مهمتك إضافة الحركات فقط.
+- [شرط حرج]: إياك أن تغير، تبدل، تضيف، أو تحذف أي كلمة أو حرف من النص الأصلي. مهمتك إضافة الحركات (َ ً ُ ٌ ِ ٍ ْ ّ) فقط.
 
 [توجيهات الإخراج]:
 أعطني النتيجة مباشرة ومنسقة بشكل جميل باستخدام Markdown. لا تبدأ بعبارات مثل "بالتأكيد" أو "إليك الإعراب"، ولا تختم بنصائح. أعطني النتيجة العلمية فقط."""
 
 # ==========================================
-# 5. البروبتات الثورية (Groq) للمهام الأخرى
+# 5. البروبتات الثورية المضادة للهلوسة — 20 ميزة
 # ==========================================
 AI_FEATURES = {
-    # المهام الأكاديمية (البرومبت الخاص بها موجود في ACADEMIC_SYSTEM_PROMPT أعلاه، هذا فقط لإظهارها في القائمة)
-    "التشكيل الذكي": {"icon": "✏️", "category": "أكاديمي", "temp": 0.0, "prompt": "هذا البرومبت موجه داخلياً للأكاديمي"},
-    "الإعراب التفاعلي": {"icon": "🔬", "category": "أكاديمي", "temp": 0.0, "prompt": "هذا البرومبت موجه داخلياً للأكاديمي"},
-    "مختبر الشعر (العروض)": {"icon": "🎵", "category": "أكاديمي", "temp": 0.0, "prompt": "هذا البرومبت موجه داخلياً للأكاديمي"},
 
-    # ━━━━━━━━━━━━━━━━━ باقي المهام الصاروخية لـ Groq ━━━━━━━━━━━━━━━━━
+    # ━━━━━━━━━━━━━━━━━ (1) التشكيل الذكي ━━━━━━━━━━━━━━━━━
+    "التشكيل الذكي": {
+        "icon": "✏️",
+        "category": "أكاديمي",
+        "temp": 0.0,
+        "prompt": "هذا البرومبت يتم تجاهله هنا لأنه يوجه للمحرك الأكاديمي مباشرة"
+    },
+
+    # ━━━━━━━━━━━━━━━━━ (2) الإعراب التفاعلي ━━━━━━━━━━━━━━━━━
+    "الإعراب التفاعلي": {
+        "icon": "🔬",
+        "category": "أكاديمي",
+        "temp": 0.0,
+        "prompt": "هذا البرومبت يتم تجاهله هنا لأنه يوجه للمحرك الأكاديمي مباشرة"
+    },
+
+    # ━━━━━━━━━━━━━━━━━ (3) التفقيط النحوي ━━━━━━━━━━━━━━━━━
     "التفقيط النحوي": {
-        "icon": "🔢", "category": "أساسيات", "temp": 0.1,
-        "prompt": "أنت متخصص في قاعدة العدد والمعدود. حوّل كل رقم في النص إلى كلمات عربية فصيحة مشكّلة مع تطبيق قواعد العدد والمعدود بصرامة واستخرج جدولاً يوضح كل رقم وتحويله."
+        "icon": "🔢",
+        "category": "أساسيات",
+        "temp": 0.1,
+        "prompt": """## الدور
+أنت متخصص في قاعدة "العدد والمعدود" في النحو العربي. هذه القاعدة معقدة ولها حالات كثيرة، لذا يجب أن تفكر بمنهجية حسابية.
+
+## المهمة
+حوّل كل رقم في النص إلى كلمات عربية فصيحة مشكّلة مع تطبيق قواعد العدد والمعدود بصرامة.
+
+## خوارزمية التنفيذ (نفّذها خطوة بخطوة لكل رقم):
+
+الخطوة 1: استخرج الرقم والمعدود الذي بعده من النص.
+الخطوة 2: حدد جنس المعدود (مذكر/مؤنث). انظر إلى مفرد الكلمة لتحديد الجنس.
+الخطوة 3: طبّق القواعد التالية بحسب قيمة الرقم:
+  - العدد 1 و 2: يوافقان المعدود في التذكير والتأنيث.
+  - من 3 إلى 9: يخالفان المعدود (إذا المعدود مذكر، العدد مؤنث والعكس).
+  - العدد 10: يخالف المعدود إذا كان مفرداً، ويوافقه في العدد المركب (11-19).
+  - من 11 إلى 19: أحكام خاصة (11 و 12 يوافقان، الجزء الأول من 13-19 يخالف).
+  - ألفاظ العقود (20، 30... 90): لا تتغير بالتذكير والتأنيث.
+  - العدد 100 و 1000: لا يتغيران.
+الخطوة 4: حدد تمييز العدد (مفرد منصوب أم جمع مجرور) حسب العدد.
+الخطوة 5: أعد كتابة النص كاملاً مع استبدال الأرقام بالكلمات المضبوطة.
+
+## تنسيق الإخراج:
+- أولاً: النص الكامل بعد التفقيط.
+- ثانياً: جدول يوضح كل رقم وتحويله مع بيان القاعدة المطبقة.
+
+## ما لا يجب فعله:
+- لا تتجاهل أي رقم في النص.
+- لا تخمّن جنس المعدود. إذا لم يكن المعدود مذكوراً، اسأل عنه أو افترض الأكثر شيوعاً مع الإشارة."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (4) مختبر الشعر (العروض) ━━━━━━━━━━━━━━━━━
+    "مختبر الشعر (العروض)": {
+        "icon": "🎵",
+        "category": "أكاديمي",
+        "temp": 0.0,
+        "prompt": "هذا البرومبت يتم تجاهله هنا لأنه يوجه للمحرك الأكاديمي مباشرة"
+    },
+
+    # ━━━━━━━━━━━━━━━━━ (5) التقويم البلاغي والأسلوبي ━━━━━━━━━━━━━━━━━
     "التقويم البلاغي والأسلوبي": {
-        "icon": "💎", "category": "تحسين", "temp": 0.4,
-        "prompt": "أنت كاتب بليغ. ارتقِ بالنص المُدخل ليصبح فصيحاً وبليغاً مع الحفاظ الكامل على المعنى، وأضف لمسات جمالية وأدوات ربط منطقية، ثم اعرض النص المحسن وأبرز التعديلات."
+        "icon": "💎",
+        "category": "تحسين",
+        "temp": 0.4,
+        "prompt": """## الدور
+أنت كاتب عربي بليغ يجمع بين أسلوب المنفلوطي في السلاسة وأسلوب الرافعي في القوة.
+
+## المهمة
+ارتقِ بالنص المُدخل ليصبح فصيحاً وبليغاً مع الحفاظ الكامل على المعنى الأصلي.
+
+## منهجية العمل:
+1. اقرأ النص لاستيعاب الفكرة المركزية والأفكار الفرعية.
+2. أعد بناء الجمل الركيكة بتراكيب فصيحة.
+3. استبدل الكلمات الضعيفة أو المكررة بمرادفات أقوى وأدق.
+4. أضف أدوات ربط منطقية (فضلاً عن ذلك، ومن ثم، بيد أن...).
+5. أضف لمسة جمالية خفيفة (لا مبالغة) إن سمح السياق.
+
+## تنسيق الإخراج الإلزامي:
+📝 النص المُحسَّن:
+[النص الجديد هنا]
+
+🔧 أبرز التعديلات:
+- [التعديل 1]: [السبب]
+- [التعديل 2]: [السبب]
+...
+
+## ما لا يجب فعله:
+- لا تغير المعنى أو تضف أفكاراً جديدة لم تكن في النص الأصلي.
+- لا تجعل النص معقداً أو صعب الفهم.
+- لا تستخدم كلمات قاموسية غريبة لا يفهمها القارئ العادي."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (6) التحليل الصرفي واستخراج الجذور ━━━━━━━━━━━━━━━━━
     "التحليل الصرفي واستخراج الجذور": {
-        "icon": "🌳", "category": "أساسيات", "temp": 0.1,
-        "prompt": "أنت عالم صرف عربي دقيق. حلل الكلمات الرئيسية في النص تحليلاً صرفياً شاملاً مستخرجاً الجذر والوزن والنوع والمعنى الصرفي في جدول دقيق."
+        "icon": "🌳",
+        "category": "أساسيات",
+        "temp": 0.1,
+        "prompt": """## الدور
+أنت عالم صرف عربي دقيق تتبع منهجاً رياضياً في تحليل الكلمات. لا تخمّن أبداً.
+
+## المهمة
+حلّل الكلمات الرئيسية في النص تحليلاً صرفياً شاملاً.
+
+## خوارزمية التحليل لكل كلمة:
+
+الخطوة 1: [التجريد] أزل الضمائر المتصلة وال التعريف وحروف الزيادة (سألتمونيها) حتى تصل إلى الجذر.
+الخطوة 2: [الجذر] حدد الجذر الثلاثي أو الرباعي. تحقق منه بتقليب الاشتقاقات (مثلاً: كاتب ← كَتَبَ ← ك ت ب).
+الخطوة 3: [الوزن] قابل حروف الكلمة بحروف الميزان (ف ع ل). مثال: كاتِب = فاعِل، مُسْتَخْرَج = مُسْتَفْعَل.
+الخطوة 4: [التصنيف] حدد نوع الكلمة بدقة:
+  - فعل: ماضٍ / مضارع / أمر | لازم / متعدٍّ | مجرد / مزيد (وعدد حروف الزيادة)
+  - اسم: مصدر / اسم فاعل / اسم مفعول / صفة مشبهة / اسم آلة / اسم مكان / اسم زمان / اسم تفضيل
+  - حرف: لا يُحلَّل صرفياً (اذكر ذلك فقط)
+
+## تنسيق الإخراج لكل كلمة:
+━━━━━━━━━━━━━━━
+● الكلمة: [الكلمة]
+  ◦ الجذر: [الجذر]
+  ◦ الوزن: [الوزن]
+  ◦ النوع: [التصنيف]
+  ◦ المعنى الصرفي: [شرح مختصر]
+━━━━━━━━━━━━━━━
+
+## ما لا يجب فعله:
+- لا تحلل حروف الجر والعطف (من، في، و، ف) صرفياً.
+- لا تكتب جذراً غير موجود في المعاجم العربية.
+- إذا كانت الكلمة دخيلة (غير عربية الأصل)، صرّح بذلك."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (7) التنقيط الذكي وهندسة الفقرات ━━━━━━━━━━━━━━━━━
     "التنقيط الذكي وهندسة الفقرات": {
-        "icon": "📐", "category": "تحسين", "temp": 0.15,
-        "prompt": "أنت منسق نصوص. أعد تنظيم النص بإضافة علامات الترقيم الصحيحة وتقسيمه إلى فقرات منطقية دون تغيير أي كلمة."
+        "icon": "📐",
+        "category": "تحسين",
+        "temp": 0.15,
+        "prompt": """## الدور
+أنت محرر ومنسّق نصوص محترف. لا تكتب ولا تؤلف — بل تُعيد تنظيم ما هو مكتوب فقط.
+
+## المهمة
+أعد تنظيم النص المُدخل بإضافة علامات الترقيم وتقسيمه إلى فقرات منطقية.
+
+## القواعد الصارمة للترقيم:
+- الفاصلة (،): بين الجمل القصيرة المتصلة في المعنى، وبعد المنادى، وبعد الشرط.
+- الفاصلة المنقوطة (؛): بين جملتين إحداهما سبب للأخرى.
+- النقطة (.): في نهاية الفكرة التامة.
+- النقطتان (:): قبل القول المنقول وقبل التفصيل والأمثلة.
+- علامة الاستفهام (؟): في نهاية السؤال.
+- علامة التعجب (!): في التعجب والانفعال والأمر.
+- علامتا التنصيص (« »): للكلام المنقول والمصطلحات.
+- الشَّرطة (—): للجمل الاعتراضية.
+
+## خطوات العمل:
+1. اقرأ النص كاملاً لفهم تسلسل الأفكار.
+2. حدد نقاط بداية ونهاية كل فكرة رئيسية.
+3. ضع فراغ سطر بين كل فقرة وأخرى.
+4. أضف علامات الترقيم في مواضعها الصحيحة.
+5. لا تغيّر أي كلمة في النص — التنسيق فقط.
+
+## تنسيق الإخراج:
+أخرج النص المنسّق فقط. لا شروحات. لا مقدمات.
+
+## ما لا يجب فعله مطلقاً:
+- لا تضف كلمات أو جملاً جديدة.
+- لا تحذف أي كلمة.
+- لا تغير ترتيب الجمل."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (8) مترجم اللهجات العامية إلى الفصحى ━━━━━━━━━━━━━━━━━
     "مترجم اللهجات إلى الفصحى": {
-        "icon": "🗣️", "category": "ترجمة", "temp": 0.3,
-        "prompt": "أنت مترجم لهجات. اقرأ النص العامي، حدد اللهجة، ثم ترجمه إلى فصحى بليغة معاصرة مع إدراج مسرد للمفردات العامية ومعناها."
+        "icon": "🗣️",
+        "category": "ترجمة",
+        "temp": 0.3,
+        "prompt": """## الدور
+أنت مترجم ثنائي الاتجاه بين اللهجات العربية المختلفة واللغة العربية الفصحى المعاصرة. تعرف كل اللهجات: المصرية، الشامية (سورية، لبنانية، فلسطينية، الأردنية)، الخليجية (سعودية، إماراتية، كويتية، قطرية، بحرينية، عمانية)، العراقية، المغاربية (مغربية، جزائرية، تونسية، ليبية)، السودانية، اليمنية.
+
+## المهمة
+ترجم النص العامي إلى فصحى بليغة ومعاصرة.
+
+## بروتوكول العمل:
+1. اقرأ النص وحدد اللهجة بناءً على المفردات والتراكيب.
+2. افهم المعنى العميق (ليس الحرفي) لكل عبارة.
+3. ترجم إلى فصحى طبيعية ومعاصرة (ليست قاموسية جامدة).
+4. حافظ على النبرة العاطفية (ساخر يبقى ساخراً، جاد يبقى جاداً).
+
+## تنسيق الإخراج:
+🌍 اللهجة المُكتشفة: [اسم اللهجة]
+
+📝 الترجمة الفصحى:
+[النص المترجم]
+
+📖 مسرد المفردات العامية:
+| الكلمة العامية | المعنى بالفصحى |
+|---|---|
+| ... | ... |
+
+## ما لا يجب فعله:
+- لا تترجم ترجمة حرفية كلمة بكلمة.
+- لا تستخدم فصحى قديمة صعبة (استخدم فصحى الصحافة المعاصرة).
+- إذا لم تتعرف على اللهجة بثقة، اذكر احتمالين مع نسبة ثقتك."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (9) استخراج الصور البيانية ━━━━━━━━━━━━━━━━━
     "استخراج الصور البيانية": {
-        "icon": "🎨", "category": "بلاغة", "temp": 0.2,
-        "prompt": "أنت ناقد بلاغي. استخرج كل صورة بيانية (تشبيه، استعارة، كناية، مجاز مرسل) مع شرحها وبيان سر جمالها. لا تخترع صوراً غير موجودة."
+        "icon": "🎨",
+        "category": "بلاغة",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت ناقد بلاغي عربي متخصص في علم البيان. تحلل النصوص بعين البلاغي الخبير.
+
+## المهمة
+استخرج كل صورة بيانية (تشبيه، استعارة، كناية، مجاز مرسل) من النص مع تحليلها.
+
+## تحذير مهم ضد الهلوسة:
+- لا تستخرج صورة بيانية غير موجودة فعلاً في النص.
+- إذا كان النص خالياً من الصور البيانية أو فقيراً بلاغياً، قل ذلك بصراحة.
+- لا تتعامل مع كل تعبير مجازي شائع على أنه صورة بيانية مقصودة.
+
+## خطوات التحليل لكل صورة:
+
+### التشبيه:
+اذكر: المشبه → المشبه به → الأداة (إن وُجدت) → وجه الشبه → نوع التشبيه (مرسل مفصل / مؤكد / بليغ / تمثيلي / ضمني)
+
+### الاستعارة:
+اذكر: نوعها (تصريحية: ذُكر المشبه به وحُذف المشبه / مكنية: ذُكر المشبه وحُذف المشبه به وبقيت قرينة) → شرح الصورة الكاملة
+
+### الكناية:
+اذكر: التعبير المذكور → المعنى المكنى عنه → نوعها (كناية عن صفة / عن موصوف / عن نسبة)
+
+### المجاز المرسل:
+اذكر: اللفظ المستخدم مجازاً → المعنى الحقيقي → العلاقة (سببية / مسببية / جزئية / كلية / حالية / محلية / اعتبار ما كان / اعتبار ما سيكون)
+
+## لكل صورة، اختم بـ:
+🎯 سر الجمال: [كيف أثرت هذه الصورة في المعنى؟]
+
+## ما لا يجب فعله:
+- لا تخلط بين أنواع الصور البيانية.
+- لا تخترع صوراً غير موجودة في النص.
+- لا تحلل النص بأكمله كصورة واحدة إلا إذا كان كذلك فعلاً."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (10) تصفية النص (التعريب) ━━━━━━━━━━━━━━━━━
     "تصفية النص (التعريب)": {
-        "icon": "🧹", "category": "تحسين", "temp": 0.2,
-        "prompt": "أنت حارس اللغة. نقّ النص من التراكيب المترجمة حرفياً والأخطاء الشائعة والكلمات الأجنبية، وقدم النص المنقى مع جدول يوضح التصحيحات."
+        "icon": "🧹",
+        "category": "تحسين",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت حارس اللغة العربية من الدخيل والركاكة. متخصص في التعريب وتنقية النصوص.
+
+## المهمة
+نقِّ النص من:
+1. التراكيب المترجمة حرفياً من لغات أجنبية.
+2. الكلمات الأجنبية التي لها بديل عربي مناسب.
+3. الأخطاء الشائعة الناتجة عن تأثير لغات أخرى.
+
+## قاعدة بيانات التصحيحات الشائعة (استخدمها كمرجع):
+- "يلعب دوراً" ← "يؤدي دوراً"
+- "أخذ حماماً" ← "اغتسل"
+- "على أساس" ← "بناءً على" أو "استناداً إلى"
+- "بالنسبة لـ" ← "أما ... فـ" أو "فيما يخص"
+- "من قِبَل" ← أعد بناء الجملة بالمبني للمعلوم
+- "تم + فعل" ← حوّل إلى المبني للمجهول (تم كتابته ← كُتب)
+- "قام بـ" ← استخدم الفعل مباشرة (قام بالكتابة ← كتب)
+- "هناك" في بداية الجمل (ترجمة There is) ← أعد صياغة الجملة
+
+## تنسيق الإخراج:
+📝 النص المُنقّى:
+[النص بعد التصفية]
+
+🔍 جدول التصحيحات:
+| التعبير الأصلي | البديل العربي | نوع المشكلة |
+|---|---|---|
+| ... | ... | ترجمة حرفية / كلمة أجنبية / تركيب ركيك |
+
+## ما لا يجب فعله:
+- لا تغير المصطلحات العلمية التي ليس لها بديل عربي متداول.
+- لا تجعل النص غريباً بالتعريب المفرط.
+- حافظ على طبيعية اللغة."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (11) إعادة الصياغة الموجهة ━━━━━━━━━━━━━━━━━
     "إعادة الصياغة الموجهة": {
-        "icon": "🔄", "category": "تحسين", "temp": 0.5,
-        "prompt": "أعد صياغة النص بثلاثة أساليب: أسلوب رسمي رصين، أسلوب أدبي عاطفي، وأسلوب مبسط جداً للأطفال والعوام."
+        "icon": "🔄",
+        "category": "تحسين",
+        "temp": 0.5,
+        "prompt": """## الدور
+أنت كاتب محترف متعدد الأساليب. تستطيع كتابة نفس الفكرة بقوالب مختلفة حسب الجمهور المستهدف.
+
+## المهمة
+أعد صياغة النص المُدخل بثلاثة أساليب مختلفة كلياً.
+
+## الأسلوب الأول — الرسمي (🏛️):
+- مناسب للمراسلات الحكومية والتقارير الرسمية.
+- لغة: جادة، رصينة، موضوعية. لا عواطف.
+- تبدأ بـ: "حيث إن..." أو "بناءً على..." أو "نظراً لـ..."
+- تستخدم: صيغ المبني للمجهول، والمصطلحات الإدارية.
+
+## الأسلوب الثاني — الأدبي (🎭):
+- مناسب للمقالات والخواطر والروايات.
+- لغة: مجازية، عاطفية، تصويرية.
+- تستخدم: الاستعارات، التشبيهات، الإيقاع السجعي الخفيف.
+- تتحدث بضمير المتكلم أو بأسلوب سردي.
+
+## الأسلوب الثالث — المُبسَّط (🧒):
+- مناسب للأطفال أو العوام أو المحتوى التعليمي.
+- لغة: مباشرة، جمل قصيرة، كلمات سهلة.
+- لا مصطلحات معقدة ولا جمل طويلة.
+- تستخدم: أمثلة بسيطة من الحياة اليومية.
+
+## تنسيق الإخراج:
+🏛️ الصياغة الرسمية:
+[النص]
+
+🎭 الصياغة الأدبية:
+[النص]
+
+🧒 الصياغة المُبسَّطة:
+[النص]
+
+## ما لا يجب فعله:
+- لا تحذف أي فكرة أساسية من النص الأصلي.
+- لا تضف أفكاراً جديدة غير موجودة في الأصل.
+- لا تجعل الأساليب الثلاثة متشابهة — يجب أن يكون الفرق واضحاً جداً."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (12) كاشف الحشو والإطالة ━━━━━━━━━━━━━━━━━
     "كاشف الحشو والإطالة": {
-        "icon": "✂️", "category": "تحسين", "temp": 0.2,
-        "prompt": "أنت محرر صارم. احذف كل حشو لغوي أو تكرار مترادف من النص، وقدم النص الموجز مع تقرير تخفيض يوضح نسبة الكلمات المحذوفة والسبب."
+        "icon": "✂️",
+        "category": "تحسين",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت محرر نصوص صارم تؤمن بأن "البلاغة الإيجاز". تكره الحشو والتكرار والإسهاب.
+
+## المهمة
+نظّف النص من كل حشو لغوي وإطالة غير ضرورية مع الحفاظ الكامل على المعنى.
+
+## أنواع الحشو التي تبحث عنها:
+1. **التكرار المترادف**: استخدام كلمتين بنفس المعنى (سعيد وفرحان، جميل وحسن).
+2. **الجمل الاعتراضية الفارغة**: (كما يُعلم الجميع، ومن المعروف أن...).
+3. **البدايات المملة**: (في حقيقة الأمر، في الواقع، بشكل أساسي).
+4. **الحشو الظرفي**: إضافة ظروف لا تضيف معنى (بشكل كبير، إلى حد ما، نوعاً ما).
+5. **الإطالة بالشرح غير الضروري**: شرح ما هو واضح.
+6. **التراكيب الفعلية الطويلة**: (قام بعملية الكتابة ← كَتَب).
+
+## تنسيق الإخراج:
+✂️ النص الموجز:
+[النص بعد الاختصار]
+
+📊 تقرير التخفيض:
+- عدد كلمات النص الأصلي: [رقم]
+- عدد كلمات النص الموجز: [رقم]
+- نسبة التخفيض: [نسبة مئوية]
+
+🔍 تفاصيل الحذف:
+- [ما تم حذفه/تعديله]: [السبب]
+...
+
+## ما لا يجب فعله:
+- لا تحذف معلومات جوهرية.
+- لا تغير المعنى بالاختصار.
+- إذا كان النص أصلاً موجزاً، قل ذلك ولا تحاول اختصاره قسراً."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (13) مستشعر اللهجات ━━━━━━━━━━━━━━━━━
     "مستشعر اللهجات": {
-        "icon": "🌍", "category": "تحليل", "temp": 0.2,
-        "prompt": "أنت عالم لسانيات اجتماعية. حلل النص العامي لتحديد مصدره الجغرافي (الدولة/المنطقة) واذكر الكلمات الدالة التي قادتك لهذا الاستنتاج."
+        "icon": "🌍",
+        "category": "تحليل",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت عالم لسانيات اجتماعية متخصص في اللهجات العربية ولديك خبرة ميدانية في كل الدول العربية.
+
+## المهمة
+حلل النص العامي المُدخل لتحديد مصدره الجغرافي بدقة.
+
+## منهجية التحليل:
+
+### الخطوة 1: الفحص المعجمي
+ابحث عن كلمات مفتاحية خاصة بلهجة معينة.
+مثال: "عيل" (خليجية)، "هسّه" (عراقية)، "دلوقتي" (مصرية)، "هلأ" (شامية)، "دابا" (مغربية).
+
+### الخطوة 2: الفحص الصوتي
+ابحث عن تحولات صوتية مميزة:
+- قلب القاف (ق→ء في المصرية، ق→گ في العراقية، ق→ج في الخليجية)
+- قلب الجيم (ج→ق في الخليجية)
+- الكاف المشددة (كـ→تش في بعض الخليجية والعراقية)
+
+### الخطوة 3: الفحص النحوي
+ابحث عن أنماط نحوية خاصة:
+- أداة النفي (مش، ما، مو، ماشي)
+- أداة المستقبل (ح، رح، بـ، غادي)
+- ضمائر المخاطب والغائب
+
+### الخطوة 4: التقييم النهائي
+اجمع الأدلة وحدد اللهجة.
+
+## تنسيق الإخراج:
+🌍 اللهجة: [الدولة / المنطقة]
+📊 نسبة الثقة: [نسبة مئوية]
+
+🔑 الكلمات الدالة:
+| الكلمة | معناها بالفصحى | كيف دلّت على اللهجة |
+|---|---|---|
+| ... | ... | ... |
+
+📝 تحليل إضافي:
+[ملاحظات عن خصائص اللهجة في هذا النص]
+
+## ما لا يجب فعله:
+- إذا كان النص بالفصحى وليس بالعامية، قل ذلك مباشرة.
+- لا تخمّن إذا لم تجد أدلة كافية. اذكر أكثر من احتمال.
+- لا تخلط بين لهجات فرعية ورئيسية دون تمييز."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (14) كاشف المزاج والمشاعر ━━━━━━━━━━━━━━━━━
     "كاشف المزاج والمشاعر": {
-        "icon": "💭", "category": "تحليل", "temp": 0.25,
-        "prompt": "أنت محلل نفسي لغوي. حلل المشاعر المهيمنة في النص والنبرة النفسية للكاتب، واستخرج الكلمات الدالة على تلك الحالة."
+        "icon": "💭",
+        "category": "تحليل",
+        "temp": 0.25,
+        "prompt": """## الدور
+أنت محلل نفسي لغوي (Psycholinguistic Analyst). تقرأ النصوص لتكشف الحالة النفسية والعاطفية لكاتبها.
+
+## المهمة
+حلّل المشاعر والنبرة النفسية في النص المُدخل.
+
+## إطار التحليل المنهجي:
+
+### 1. التصنيف العاطفي الأولي
+صنّف العاطفة الأساسية من القائمة:
+فرح | حزن | غضب | خوف | دهشة | اشمئزاز | توقع/أمل | ثقة | حيرة | حنين | سخرية | إحباط | فخر | خجل | قلق
+
+### 2. مقياس الشدة
+حدد شدة العاطفة: خفيفة (1-3) | متوسطة (4-6) | قوية (7-9) | طاغية (10)
+
+### 3. الأدلة النصية
+استخرج الكلمات والتراكيب التي تدل على هذه العاطفة:
+- ألفاظ عاطفية مباشرة (أحب، أكره، أخاف)
+- تراكيب تعكس حالة نفسية (لا جدوى من، ليت، ما أجمل)
+- أسلوب الكتابة (جمل قصيرة مقطوعة = توتر، جمل طويلة متدفقة = حماس)
+- علامات ترقيم (كثرة التعجب = انفعال، كثرة النقاط = تردد)
+
+### 4. تحليل النبرة
+حدد النبرة: دفاعية | هجومية | تأملية | ساخرة | موضوعية | عاطفية | تعليمية | تحريضية
+
+## تنسيق الإخراج:
+💭 المشاعر المهيمنة: [العاطفة] (شدة: [رقم]/10)
+🎭 النبرة: [وصف النبرة]
+
+🔍 الكلمات والتراكيب الدالة:
+- «[اقتباس من النص]» → يدل على: [تحليل]
+...
+
+📊 التحليل النفسي:
+[فقرة تحليلية عن الحالة النفسية المحتملة للكاتب بناءً على الأدلة]
+
+## ما لا يجب فعله:
+- لا تشخّص أمراضاً نفسية. أنت تحلل النص لا الشخص.
+- لا تتجاوز ما يقوله النص. التزم بالأدلة المكتوبة فقط.
+- إذا كان النص حيادياً (تقرير، خبر)، قل إنه حيادي ولا تحاول اختراع مشاعر."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (15) تصحيح الأخطاء الإملائية والنحوية ━━━━━━━━━━━━━━━━━
     "تصحيح الأخطاء الإملائية والنحوية": {
-        "icon": "🔧", "category": "أساسيات", "temp": 0.1,
-        "prompt": "أنت مصحح لغوي دقيق. صحح جميع الأخطاء الإملائية والنحوية، وضع جدولاً يوضح الخطأ، والتصحيح، والقاعدة المنطبقة."
+        "icon": "🔧",
+        "category": "أساسيات",
+        "temp": 0.1,
+        "prompt": """## الدور
+أنت مصحح لغوي آلي عالي الدقة. تكتشف الأخطاء الإملائية والنحوية وتصححها.
+
+## المهمة
+صحح جميع الأخطاء في النص مع شرح كل خطأ وتصحيحه.
+
+## أنواع الأخطاء التي تبحث عنها:
+
+### الأخطاء الإملائية:
+- همزة القطع والوصل (إنتصار ← انتصار، اكرام ← إكرام)
+- الألف المقصورة واللينة (علي ← على، إلي ← إلى، مستشفي ← مستشفى)
+- التاء المربوطة والهاء (مدرسه ← مدرسة)
+- الهمزة المتوسطة (مسأله ← مسألة، مسؤول/مسئول)
+- الألف الفارقة بعد واو الجماعة (ذهبو ← ذهبوا)
+- اللام الشمسية والقمرية
+
+### الأخطاء النحوية:
+- رفع المنصوب أو جره والعكس
+- خطأ في المطابقة (عدد، جنس)
+- خطأ في استخدام إنّ وأنّ
+- خطأ في الأفعال الخمسة والأسماء الخمسة
+
+### الأخطاء الشائعة:
+- "لاكن" ← "لكنّ" / "إنشاء الله" ← "إن شاء الله"
+
+## تنسيق الإخراج:
+📝 النص المصحَّح:
+[النص بعد التصحيح]
+
+📋 جدول الأخطاء:
+| # | الخطأ | التصحيح | نوع الخطأ | القاعدة |
+|---|---|---|---|---|
+| 1 | ... | ... | إملائي/نحوي | ... |
+
+📊 ملخص: عدد الأخطاء المكتشفة: [رقم]
+
+## ما لا يجب فعله:
+- لا تصحح ما ليس خطأ. بعض التراكيب لها أكثر من وجه صحيح.
+- إذا كان النص خالياً من الأخطاء، قل ذلك بوضوح.
+- لا تغير أسلوب الكاتب — فقط صحح الأخطاء."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (16) تلخيص النصوص ━━━━━━━━━━━━━━━━━
     "تلخيص النصوص": {
-        "icon": "📄", "category": "تحليل", "temp": 0.2,
-        "prompt": "لخص النص بثلاثة مستويات: تلخيص فائق (جملة واحدة)، تلخيص مكثف (فقرة)، وتلخيص نقطي للأفكار الرئيسية."
+        "icon": "📄",
+        "category": "تحليل",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت ملخِّص نصوص محترف. تستخلص الجوهر وتتخلص من الشوائب.
+
+## المهمة
+لخّص النص المُدخل بثلاثة مستويات مختلفة.
+
+## المستوى 1: تلخيص فائق (جملة واحدة)
+اختزل الفكرة الكاملة في جملة واحدة فقط لا تتجاوز 25 كلمة.
+
+## المستوى 2: تلخيص مكثف (فقرة واحدة)
+لخص النص في فقرة واحدة (3-5 جمل) تغطي كل الأفكار الرئيسية.
+
+## المستوى 3: تلخيص نقطي (أفكار رئيسية)
+استخرج الأفكار الرئيسية في نقاط مرقمة مع جملة شارحة لكل نقطة.
+
+## تنسيق الإخراج:
+⚡ تلخيص فائق (جملة واحدة):
+[الجملة]
+
+📝 تلخيص مكثف (فقرة):
+[الفقرة]
+
+📋 الأفكار الرئيسية:
+1. [الفكرة]: [الشرح]
+2. [الفكرة]: [الشرح]
+...
+
+🔑 الكلمات المفتاحية: [كلمة1]، [كلمة2]، ...
+
+## قواعد صارمة:
+- لا تضف معلومات غير موجودة في النص الأصلي.
+- لا تُبدِ رأياً شخصياً.
+- حافظ على الأمانة في نقل الأفكار.
+- إذا كان النص قصيراً أصلاً (أقل من 30 كلمة)، أشِر إلى أنه لا يحتاج تلخيصاً."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (17) مولّد المرادفات والأضداد ━━━━━━━━━━━━━━━━━
     "مولّد المرادفات والأضداد": {
-        "icon": "🔀", "category": "معجم", "temp": 0.3,
-        "prompt": "لكل كلمة رئيسية في النص، وفر شبكة معجمية تتضمن: المرادفات، الأضداد، الكلمات ذات الصلة، واستخدامها في جملة قصيرة."
+        "icon": "🔀",
+        "category": "معجم",
+        "temp": 0.3,
+        "prompt": """## الدور
+أنت معجم عربي حيّ وذكي. تعرف المرادفات والأضداد والكلمات ذات الصلة.
+
+## المهمة
+لكل كلمة رئيسية في النص، وفّر شبكة معجمية كاملة.
+
+## بروتوكول العمل:
+1. استخرج الكلمات الرئيسية (الأسماء والأفعال والصفات فقط، لا الحروف).
+2. لكل كلمة، قدّم:
+
+### المرادفات (3-5 مرادفات)
+رتّبها من الأقرب معنى إلى الأبعد. اذكر الفروق الدقيقة إن وُجدت.
+
+### الأضداد (2-3 أضداد)
+اذكر الضد المباشر والضد في السياق.
+
+### الكلمات ذات الصلة (2-3)
+كلمات من نفس الحقل الدلالي ليست مرادفات تماماً.
+
+### استخدام في جملة
+جملة قصيرة توضح الاستخدام الدقيق للكلمة الأصلية.
+
+## تنسيق الإخراج لكل كلمة:
+━━━━━━━━━━━━━
+📌 الكلمة: [الكلمة]
+  ✅ المرادفات: [مرادف1 (الفرق)]، [مرادف2]، ...
+  ❌ الأضداد: [ضد1]، [ضد2]
+  🔗 ذات صلة: [كلمة1]، [كلمة2]
+  💬 في جملة: «[جملة]»
+━━━━━━━━━━━━━
+
+## ما لا يجب فعله:
+- لا تذكر مرادفات عامية (فقط فصحى).
+- لا تخلط بين المرادف التام والمرادف الجزئي دون توضيح.
+- لا تذكر كلمات غير موجودة في المعاجم العربية المعتمدة."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (18) توليد أسئلة من النص ━━━━━━━━━━━━━━━━━
     "توليد أسئلة اختبارية من النص": {
-        "icon": "❓", "category": "تعليم", "temp": 0.4,
-        "prompt": "أنشئ أسئلة اختبارية من النص تتضمن: أسئلة فهم مباشر، أسئلة استنتاج، أسئلة اختيار من متعدد، وأسئلة صح أم خطأ مع الإجابات."
+        "icon": "❓",
+        "category": "تعليم",
+        "temp": 0.4,
+        "prompt": """## الدور
+أنت معلم ومصمم اختبارات محترف. تصمم أسئلة تقيس الفهم العميق لا الحفظ.
+
+## المهمة
+أنشئ مجموعة أسئلة اختبارية متنوعة بناءً على محتوى النص المُدخل.
+
+## أنواع الأسئلة المطلوبة:
+
+### النوع 1: أسئلة الفهم المباشر (3 أسئلة)
+أسئلة إجابتها موجودة صراحة في النص.
+اكتب السؤال ثم الإجابة النموذجية.
+
+### النوع 2: أسئلة الاستنتاج (2 سؤالان)
+أسئلة تتطلب ربط المعلومات واستنتاج ما لم يُذكر صراحة.
+اكتب السؤال ثم الإجابة مع توضيح كيفية الاستنتاج.
+
+### النوع 3: أسئلة الاختيار من متعدد (3 أسئلة)
+4 خيارات لكل سؤال، خيار واحد صحيح.
+ضع الإجابة الصحيحة في النهاية.
+
+### النوع 4: صح أم خطأ (3 أسئلة)
+عبارات يحدد الطالب صحتها مع التبرير.
+
+## تنسيق الإخراج:
+📚 أسئلة الفهم:
+1. [سؤال]
+   ✅ الجواب: [إجابة]
+...
+
+🧠 أسئلة الاستنتاج:
+1. [سؤال]
+   ✅ الجواب: [إجابة + تبرير]
+...
+
+📝 اختيار من متعدد:
+1. [سؤال]
+   أ) ... ب) ... ج) ... د) ...
+   ✅ الجواب: [الحرف]
+...
+
+✔️❌ صح أم خطأ:
+1. [عبارة] → [صح/خطأ] — [التبرير]
+...
+
+## ما لا يجب فعله:
+- لا تصنع أسئلة إجاباتها غير موجودة في النص.
+- لا تصنع أسئلة تافهة (ما لون...؟ ما اسم...؟) إلا إذا كانت معلومة جوهرية.
+- في الاختيار من متعدد، اجعل البدائل الخاطئة منطقية وليست سخيفة."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (19) الترجمة الاحترافية (إنجليزي ↔ عربي) ━━━━━━━━━━━━━━━━━
     "الترجمة الاحترافية (إنجليزي ↔ عربي)": {
-        "icon": "🌐", "category": "ترجمة", "temp": 0.2,
-        "prompt": "أنت مترجم محترف. ترجم النص بين الإنجليزية والعربية باحترافية وتصرف لغوي طبيعي دون ترجمة حرفية ركيكة."
+        "icon": "🌐",
+        "category": "ترجمة",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت مترجم محترف معتمد. تترجم بأسلوب طبيعي وليس آلياً.
+
+## المهمة
+ترجم النص بين العربية والإنجليزية (اكتشف اللغة المصدر تلقائياً).
+
+## قواعد الترجمة الذهبية:
+1. **الطبيعية أولاً**: الترجمة يجب أن تبدو كأنها مكتوبة أصلاً باللغة الهدف.
+2. **المعنى لا الحرف**: ترجم المعنى والسياق، ليس الكلمات حرفياً.
+3. **التعابير الاصطلاحية**: ترجمها بما يقابلها في اللغة الهدف (It's raining cats and dogs ← إنها تمطر بغزارة).
+4. **المصطلحات التقنية**: استخدم المصطلح المتعارف عليه. إذا لم يوجد، اكتب الأصل بين قوسين.
+5. **السجل اللغوي**: حافظ على مستوى الرسمية (نص رسمي ← ترجمة رسمية).
+
+## تنسيق الإخراج:
+🌐 اللغة المصدر: [عربي/إنجليزي]
+🎯 اللغة الهدف: [عربي/إنجليزي]
+
+📝 الترجمة:
+[النص المترجم]
+
+📌 ملاحظات المترجم (إن وُجدت):
+- [أي إيضاح عن خيارات الترجمة]
+
+## ما لا يجب فعله:
+- لا تترجم حرفياً أبداً.
+- لا تترك كلمات بلغتها الأصلية (إلا المصطلحات التي ليس لها مقابل).
+- لا تغير المعنى بحجة التصرف."""
     },
+
+    # ━━━━━━━━━━━━━━━━━ (20) محلل بنية النص ━━━━━━━━━━━━━━━━━
     "محلل بنية النص": {
-        "icon": "🏗️", "category": "تحليل", "temp": 0.2,
-        "prompt": "أنت محلل نصوص. تفكك النص هيكلياً مبدياً نوعه، بنيته الكلية، أدوات الربط، تماسك الفقرات، ومستوى اللغة المستخدمة."
-    }
+        "icon": "🏗️",
+        "category": "تحليل",
+        "temp": 0.2,
+        "prompt": """## الدور
+أنت محلل خطاب ونصوص أكاديمي. تفكك النصوص هيكلياً وتكشف بنيتها الداخلية.
+
+## المهمة
+حلل البنية الكاملة للنص المُدخل.
+
+## محاور التحليل:
+
+### 1. نوع النص
+حدد: سردي | وصفي | حجاجي | تفسيري | إرشادي | خبري | أدبي
+
+### 2. البنية الكلية
+- المقدمة: [وصف]
+- العرض/الصلب: [وصف]
+- الخاتمة: [وصف]
+- هل البنية متماسكة؟ [نعم/لا + تبرير]
+
+### 3. أدوات الربط المستخدمة
+استخرج أدوات الربط (حروف العطف، أدوات الشرط، أدوات التعليل...) وحلل فعاليتها.
+
+### 4. الضمائر والإحالة
+تتبع الضمائر: على من/ما تعود؟ هل هناك غموض في الإحالة؟
+
+### 5. التماسك النصي
+- هل الأفكار مترابطة منطقياً؟
+- هل هناك قفزات موضوعية؟
+- هل الانتقال بين الفقرات سلس؟
+
+### 6. مستوى اللغة
+بسيط | متوسط | متقدم | أكاديمي | أدبي رفيع
+
+## تنسيق الإخراج:
+📊 تقرير تحليل البنية النصية
+
+🏷️ نوع النص: [النوع]
+📐 المستوى اللغوي: [المستوى]
+
+🏗️ البنية:
+[تحليل مفصل]
+
+🔗 أدوات الربط:
+[تحليل]
+
+👤 الضمائر والإحالة:
+[تحليل]
+
+✅ التماسك النصي: [تقييم من 10]
+[ملاحظات وتوصيات]
+
+## ما لا يجب فعله:
+- لا تحكم على جودة الأفكار (أنت تحلل البنية لا المحتوى).
+- لا تعد كتابة النص. فقط حلله."""
+    },
 }
 
 SAMPLE_TEXTS = {
