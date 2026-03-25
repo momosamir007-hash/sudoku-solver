@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import language_tool_python
+from groq import Groq  # [إضافة جديدة]: استدعاء مكتبة Groq
 
 # ==========================================
 # 1. إعدادات الصفحة
@@ -119,11 +120,19 @@ mark.error-word {
     color: var(--dark-1) !important;
     border: none !important;
 }
+
+/* [إضافة جديدة]: تخصيص أزرار الاختيار (Radio) */
+div.row-widget.stRadio > div {
+    flex-direction: row;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. إعداد مكتبة التدقيق الشامل
+# 3. إعداد مكتبة التدقيق الشامل ومحرك Groq
 # ==========================================
 @st.cache_resource
 def init_language_tool():
@@ -135,6 +144,15 @@ try:
 except Exception as e:
     tool = None
     tool_status = f"❌ حدث خطأ في التهيئة: {e}"
+
+# [إضافة جديدة]: تهيئة محرك Groq
+try:
+    groq_api_key = st.secrets["GROQ_API_KEY"]
+    groq_client = Groq(api_key=groq_api_key)
+    groq_status = "✅ ذكاء Groq جاهز"
+except Exception as e:
+    groq_client = None
+    groq_status = "❌ مفتاح Groq غير متوفر في secrets"
 
 # ==========================================
 # 4. قسم الهيدر
@@ -150,7 +168,15 @@ st.markdown("""
 # 5. منطقة العمل
 # ==========================================
 st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-st.markdown(f'<div class="card-title">✍️ أدخل النص الإنجليزي ({tool_status})</div>', unsafe_allow_html=True)
+
+# [إضافة جديدة]: اختيار المحرك
+engine_choice = st.radio(
+    "اختر محرك التصحيح:",
+    ["مكتبة LanguageTool", "الذكاء الاصطناعي (Groq)"],
+    horizontal=True
+)
+
+st.markdown(f'<div class="card-title">✍️ أدخل النص الإنجليزي (المكتبة: {tool_status} | الذكاء: {groq_status})</div>', unsafe_allow_html=True)
 
 default_text = "Their are many speling errrs here. He go to the market everyday."
 
@@ -178,78 +204,150 @@ st.markdown('</div>', unsafe_allow_html=True)
 if check_btn:
     if not user_text.strip():
         st.warning("⚠️ الرجاء كتابة نص أولاً!")
-    elif tool is None:
-        st.error("المكتبة غير متوفرة. تأكد من إعدادات الجافا (ملف packages.txt).")
     else:
-        with st.spinner("⏳ يتم تحليل القواعد والإملاء..."):
-            t0 = time.time()
-            
-            # فحص النص بالكامل
-            matches = tool.check(user_text)
-            
-            # التصحيح التلقائي
-            corrected_text = language_tool_python.utils.correct(user_text, matches)
-            
-            html_original = ""
-            last_end = 0
-            
-            # ترتيب الأخطاء
-            matches.sort(key=lambda m: m.offset)
-            
-            for m in matches:
-                # [إصلاح الخطأ هنا]: استخراج طول الخطأ بشكل آمن يدعم جميع إصدارات المكتبة
-                err_len = getattr(m, 'errorLength', getattr(m, 'length', getattr(m, 'error_length', 0)))
-                
-                # إضافة النص السليم
-                html_original += user_text[last_end:m.offset]
-                
-                # الكلمة الخاطئة
-                bad_word = user_text[m.offset:m.offset + err_len]
-                
-                # رسالة التوضيح
-                tooltip_msg = f"{m.message}"
-                if m.replacements:
-                    tooltip_msg += f" (Suggestions: {', '.join(m.replacements[:3])})"
-                
-                html_original += f'<mark class="error-word" title="{tooltip_msg}">{bad_word}</mark>'
-                
-                last_end = m.offset + err_len
-            
-            # باقي النص
-            html_original += user_text[last_end:]
-            html_original = html_original.replace('\n', '<br>')
-            
-            corrected_text_html = corrected_text.replace('\n', '<br>')
-            
-            elapsed = round(time.time() - t0, 2)
+        # ----------------------------------------
+        # المسار الأول: مكتبة LanguageTool (الكود الأصلي دون مسح)
+        # ----------------------------------------
+        if engine_choice == "مكتبة LanguageTool":
+            if tool is None:
+                st.error("المكتبة غير متوفرة. تأكد من إعدادات الجافا (ملف packages.txt).")
+            else:
+                with st.spinner("⏳ يتم تحليل القواعد والإملاء..."):
+                    t0 = time.time()
+                    
+                    # فحص النص بالكامل
+                    matches = tool.check(user_text)
+                    
+                    # التصحيح التلقائي
+                    corrected_text = language_tool_python.utils.correct(user_text, matches)
+                    
+                    html_original = ""
+                    last_end = 0
+                    
+                    # ترتيب الأخطاء
+                    matches.sort(key=lambda m: m.offset)
+                    
+                    for m in matches:
+                        # [إصلاح الخطأ هنا]: استخراج طول الخطأ بشكل آمن يدعم جميع إصدارات المكتبة
+                        err_len = getattr(m, 'errorLength', getattr(m, 'length', getattr(m, 'error_length', 0)))
+                        
+                        # إضافة النص السليم
+                        html_original += user_text[last_end:m.offset]
+                        
+                        # الكلمة الخاطئة
+                        bad_word = user_text[m.offset:m.offset + err_len]
+                        
+                        # رسالة التوضيح
+                        tooltip_msg = f"{m.message}"
+                        if m.replacements:
+                            tooltip_msg += f" (Suggestions: {', '.join(m.replacements[:3])})"
+                        
+                        html_original += f'<mark class="error-word" title="{tooltip_msg}">{bad_word}</mark>'
+                        
+                        last_end = m.offset + err_len
+                    
+                    # باقي النص
+                    html_original += user_text[last_end:]
+                    html_original = html_original.replace('\n', '<br>')
+                    
+                    corrected_text_html = corrected_text.replace('\n', '<br>')
+                    
+                    elapsed = round(time.time() - t0, 2)
 
-            # عرض النتائج
-            st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-            
-            st.markdown('<div class="card-title">🔍 الأخطاء المكتشفة (مرر الماوس فوق الكلمة لمعرفة السبب):</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="output-display">{html_original}</div>', unsafe_allow_html=True)
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            st.markdown('<div class="card-title">✅ النص بعد التصحيح:</div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="output-display corrected-text">{corrected_text_html}</div>', unsafe_allow_html=True)
+                    # عرض النتائج
+                    st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+                    
+                    st.markdown('<div class="card-title">🔍 الأخطاء المكتشفة (مرر الماوس فوق الكلمة لمعرفة السبب):</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="output-display">{html_original}</div>', unsafe_allow_html=True)
+                    
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    
+                    st.markdown('<div class="card-title">✅ النص بعد التصحيح:</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="output-display corrected-text">{corrected_text_html}</div>', unsafe_allow_html=True)
 
-            # الإحصائيات
-            st.markdown(f"""
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-value">{len(user_text.split())}</div>
-                    <div class="stat-label">إجمالي الكلمات</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" style="color: #ff6b6b;">{len(matches)}</div>
-                    <div class="stat-label">أخطاء إملائية/نحوية</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" style="color: #2ecc71;">{elapsed}s</div>
-                    <div class="stat-label">وقت التحليل</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+                    # الإحصائيات
+                    st.markdown(f"""
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value">{len(user_text.split())}</div>
+                            <div class="stat-label">إجمالي الكلمات</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ff6b6b;">{len(matches)}</div>
+                            <div class="stat-label">أخطاء إملائية/نحوية</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #2ecc71;">{elapsed}s</div>
+                            <div class="stat-label">وقت التحليل</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+        # ----------------------------------------
+        # المسار الثاني: محرك الذكاء الاصطناعي (Groq)
+        # ----------------------------------------
+        elif engine_choice == "الذكاء الاصطناعي (Groq)":
+            if groq_client is None:
+                st.error("مفتاح Groq غير متوفر. الرجاء إضافته في إعدادات st.secrets.")
+            else:
+                with st.spinner("⏳ يتم تحليل النص باستخدام نماذج Groq السريعة..."):
+                    t0 = time.time()
+                    try:
+                        # إرسال طلب لـ Groq لتصحيح النص
+                        completion = groq_client.chat.completions.create(
+                            model="llama3-8b-8192", # يمكنك تغيير النموذج إذا أردت
+                            messages=[
+                                {
+                                    "role": "system",
+                                    "content": "You are a professional English proofreader. Reply ONLY with the fully corrected version of the user's text. Fix all grammar, spelling, and punctuation errors. Do not add any explanations, conversational filler, or markdown blocks."
+                                },
+                                {
+                                    "role": "user",
+                                    "content": user_text
+                                }
+                            ],
+                            temperature=0.1,
+                            max_tokens=1024,
+                        )
+                        
+                        corrected_text_groq = completion.choices[0].message.content.strip()
+                        corrected_text_html_groq = corrected_text_groq.replace('\n', '<br>')
+                        elapsed = round(time.time() - t0, 2)
+                        
+                        # حساب تقريبي للأخطاء (مقارنة عدد الكلمات المختلفة كبديل بسيط)
+                        orig_words = set(user_text.lower().split())
+                        corr_words = set(corrected_text_groq.lower().split())
+                        approx_errors = len(orig_words.symmetric_difference(corr_words))
+
+                        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+                        st.markdown('<div class="card-title">📝 النص الأصلي:</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="output-display">{user_text.replace(chr(10), "<br>")}</div>', unsafe_allow_html=True)
+                        
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        
+                        st.markdown('<div class="card-title">✨ النص بعد التصحيح باستخدام (Groq AI):</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="output-display corrected-text">{corrected_text_html_groq}</div>', unsafe_allow_html=True)
+
+                        # الإحصائيات الخاصة بـ Groq
+                        st.markdown(f"""
+                        <div class="stats-row">
+                            <div class="stat-card">
+                                <div class="stat-value">{len(user_text.split())}</div>
+                                <div class="stat-label">إجمالي الكلمات</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #f4a261;">~ {approx_errors}</div>
+                                <div class="stat-label">تعديلات مقدرة</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" style="color: #2ecc71;">{elapsed}s</div>
+                                <div class="stat-label">سرعة الاستجابة</div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+                    except Exception as e:
+                        st.error(f"حدث خطأ أثناء الاتصال بـ Groq: {e}")
