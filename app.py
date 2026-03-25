@@ -1697,7 +1697,7 @@ else:
         st.info("🎯 **المسار الأكاديمي الصارم:** هذه المهمة تتطلب دقة رياضية وقواعد صارمة، تم توجيهها للنماذج الكبرى لمنع الهلوسة.")
         academic_model_choice = st.selectbox(
             "اختر المحرك الأكاديمي:",
-            ["🤖 OpenRouter (Qwen3-235B)", "✨ Gemini (2.5 Flash)"]
+            ["🤖 OpenRouter (نماذج مجانية)", "✨ Gemini (2.5 Flash)"]
         )
 
         # اختيار النموذج المجاني من OpenRouter
@@ -1706,12 +1706,13 @@ else:
             openrouter_model_id = st.selectbox(
                 "اختر النموذج المجاني:",
                 [
-                    "qwen/qwen3-235b-a22b:free",
-                    "deepseek/deepseek-chat-v3-0324:free",
-                    "google/gemini-2.0-flash-exp:free",
+                    "qwen/qwen3-8b:free",
+                    "meta-llama/llama-3.3-70b-instruct:free",
+                    "deepseek/deepseek-r1:free",
                     "meta-llama/llama-4-maverick:free",
+                    "meta-llama/llama-4-scout:free",
                 ],
-                help="Qwen3-235B هو الأقوى في العربية"
+                help="llama-3.3-70B و qwen3-8B الأقوى في العربية حالياً"
             )
             if not openrouter_status:
                 st.error("❌ مفتاح OPENROUTER_API_KEY غير متوفر في st.secrets.")
