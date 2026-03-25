@@ -31,14 +31,10 @@ except Exception:
     groq_client = None
     groq_status = False
 
-# تهيئة Mistral AI (للمهام الأكاديمية الدقيقة والمجانية)
-try:
-    from mistralai import Mistral
-    mistral_client = Mistral(api_key=st.secrets["MISTRAL_API_KEY"])
-    mistral_status = True
-except Exception:
-    mistral_client = None
-    mistral_status = False
+# تهيئة Mistral AI (باستخدام requests لتفادي مشاكل الحزم)
+import requests
+mistral_api_key = st.secrets.get("MISTRAL_API_KEY")
+mistral_status = True if mistral_api_key else False
 
 # تهيئة Gemini
 try:
@@ -1806,15 +1802,21 @@ if run_btn:
                     model_label = mistral_model_id.upper()
                     with st.spinner(f"⏳ جاري التحليل الأكاديمي الصارم عبر {model_label}..."):
                         try:
-                            response = mistral_client.chat.complete(
-                                model=mistral_model_id,
-                                messages=[
+                            headers = {
+                                "Authorization": f"Bearer {mistral_api_key}",
+                                "Content-Type": "application/json"
+                            }
+                            data = {
+                                "model": mistral_model_id,
+                                "messages": [
                                     {"role": "system", "content": ACADEMIC_SYSTEM_PROMPT},
                                     {"role": "user", "content": task_instruction}
                                 ],
-                                temperature=0.0
-                            )
-                            result_text = response.choices[0].message.content
+                                "temperature": 0.0
+                            }
+                            resp = requests.post("https://api.mistral.ai/v1/chat/completions", headers=headers, json=data)
+                            resp.raise_for_status()
+                            result_text = resp.json()["choices"][0]["message"]["content"]
                             used_model = model_label
                         except Exception as e:
                             st.error(f"❌ خطأ في اتصال Mistral AI: {e}")
