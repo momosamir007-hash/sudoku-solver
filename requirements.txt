@@ -12,6 +12,6 @@ spacy
 git+https://github.com/PrithivirajDamodaran/Gramformer.git
 groq
 google.generativeai
-openai
+mistralai>=1.0.0
 
 
