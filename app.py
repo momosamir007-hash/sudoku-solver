@@ -31,17 +31,14 @@ except Exception:
     groq_client = None
     groq_status = False
 
-# تهيئة OpenRouter (بديل OpenAI بنماذج مجانية)
+# تهيئة Mistral AI (للمهام الأكاديمية الدقيقة والمجانية)
 try:
-    from openai import OpenAI as OpenRouterClient
-    openrouter_client = OpenRouterClient(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=st.secrets["OPENROUTER_API_KEY"],
-    )
-    openrouter_status = True
+    from mistralai import Mistral
+    mistral_client = Mistral(api_key=st.secrets["MISTRAL_API_KEY"])
+    mistral_status = True
 except Exception:
-    openrouter_client = None
-    openrouter_status = False
+    mistral_client = None
+    mistral_status = False
 
 # تهيئة Gemini
 try:
@@ -1561,7 +1558,7 @@ st.markdown("""
 feature_count = len(AI_FEATURES)
 st.markdown(f"""
 <div class="hero-section">
-    <div class="hero-badge"> 🚀 مدعوم بالتوجيه الذكي (CATT Offline, Groq, OpenRouter, Gemini 2.5) </div>
+    <div class="hero-badge"> 🚀 مدعوم بالتوجيه الذكي (CATT Offline, Groq, Mistral AI, Gemini 2.5) </div>
     <h1 class="hero-title">
         <span class="gradient-text">المساعد اللغوي العربي الهجين</span>
     </h1>
@@ -1697,25 +1694,24 @@ else:
         st.info("🎯 **المسار الأكاديمي الصارم:** هذه المهمة تتطلب دقة رياضية وقواعد صارمة، تم توجيهها للنماذج الكبرى لمنع الهلوسة.")
         academic_model_choice = st.selectbox(
             "اختر المحرك الأكاديمي:",
-            ["🤖 OpenRouter (نماذج مجانية)", "✨ Gemini (2.5 Flash)"]
+            ["🤖 Mistral AI (نماذج مجانية قوية)", "✨ Gemini (2.5 Flash)"]
         )
 
-        # اختيار النموذج المجاني من OpenRouter
-        openrouter_model_id = None
-        if "OpenRouter" in academic_model_choice:
-            openrouter_model_id = st.selectbox(
-                "اختر النموذج المجاني:",
+        # اختيار النموذج المجاني من Mistral
+        mistral_model_id = None
+        if "Mistral" in academic_model_choice:
+            mistral_model_id = st.selectbox(
+                "اختر النموذج:",
                 [
-                    "nousresearch/hermes-3-llama-3.1-405b:free",
-                    "qwen/qwen3-next-80b-a3b-instruct:free",
-                    "google/gemma-3-27b-it:free",
-                    "openai/gpt-oss-120b:free",
-                    "mistralai/mistral-small-3.1-24b-instruct:free",
+                    "pixtral-large-latest",
+                    "mistral-large-latest",
+                    "mistral-medium-latest",
+                    "mistral-small-latest",
                 ],
-                help="Hermes 405B و Qwen3 80B الخيارات الأقوى والأذكى للغة العربية"
+                help="Pixtral Large و Mistral Large هي أحدث وأقوى الموديلات للغة العربية (124B)"
             )
-            if not openrouter_status:
-                st.error("❌ مفتاح OPENROUTER_API_KEY غير متوفر في st.secrets.")
+            if not mistral_status:
+                st.error("❌ مفتاح MISTRAL_API_KEY غير متوفر في st.secrets.")
         if "Gemini" in academic_model_choice and not gemini_status:
             st.error("❌ مفتاح Gemini غير متوفر في st.secrets.")
     else:
@@ -1806,36 +1802,22 @@ if run_btn:
             if selected_feature in ACADEMIC_TASKS:
                 task_instruction = f"المهمة المطلوبة: [{selected_feature}]\n\nالنص المُراد تحليله:\n{user_text}"
                 
-                if "OpenRouter" in academic_model_choice and openrouter_status:
-                    model_label = openrouter_model_id.split("/")[1].split(":")[0].upper()
+                if "Mistral" in academic_model_choice and mistral_status:
+                    model_label = mistral_model_id.upper()
                     with st.spinner(f"⏳ جاري التحليل الأكاديمي الصارم عبر {model_label}..."):
                         try:
-                            response = openrouter_client.chat.completions.create(
-                                model=openrouter_model_id,
+                            response = mistral_client.chat.complete(
+                                model=mistral_model_id,
                                 messages=[
                                     {"role": "system", "content": ACADEMIC_SYSTEM_PROMPT},
                                     {"role": "user", "content": task_instruction}
                                 ],
-                                temperature=0.0,
-                                max_tokens=4096,
-                                extra_headers={
-                                    "HTTP-Referer": "https://catt-ai.streamlit.app",
-                                    "X-Title": "CATT AI Arabic Assistant",
-                                },
+                                temperature=0.0
                             )
                             result_text = response.choices[0].message.content
                             used_model = model_label
                         except Exception as e:
-                            err_str = str(e)
-                            if "429" in err_str:
-                                st.error(
-                                    f"❌ النموذج `{openrouter_model_id}` مقيد السرعة حالياً (rate-limited). "
-                                    f"جرّب نموذجاً آخر من القائمة أو انتظر دقيقة وأعد المحاولة."
-                                )
-                            elif "404" in err_str:
-                                st.error(f"❌ النموذج `{openrouter_model_id}` غير متوفر على OpenRouter. جرّب نموذجاً آخر.")
-                            else:
-                                st.error(f"❌ خطأ في اتصال OpenRouter: {e}")
+                            st.error(f"❌ خطأ في اتصال Mistral AI: {e}")
                 
                 elif "Gemini" in academic_model_choice and gemini_status:
                     with st.spinner("⏳ جاري التحليل الأكاديمي الصارم عبر Gemini 2.5..."):
@@ -1935,7 +1917,7 @@ st.markdown(f"""
 <div class="site-footer">
     <div class="footer-brand">✨ CATT & AI — المساعد اللغوي الهجين</div>
     <div class="footer-text">
-        توجيه ذكي بين CATT (محلي)، Groq (سرعة)، OpenRouter/Qwen3 (دقة أكاديمية مجانية)، و Gemini 2.5<br>
+        توجيه ذكي بين CATT (محلي)، Groq (سرعة)، Mistral AI (دقة أكاديمية مجانية وموثوقة)، و Gemini 2.5<br>
         الإصدار 4.0 Pro+ Hybrid
     </div>
 </div>
